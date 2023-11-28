@@ -1,0 +1,6 @@
+{
+    "configuration": "deauther_config=nodemcu,eesz=4M1M,wipe=none,baud=115200",
+    "board": "deauther:esp8266:nodemcuv2",
+    "sketch": "esp8266_wifitools.ino",
+    "port": "/dev/ttyUSB0"
+}
