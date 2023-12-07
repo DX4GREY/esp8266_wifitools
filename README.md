@@ -1,4 +1,4 @@
-# ESP8266 WiFi Tools
+# Dx4 WiFi Tools
 
 <img src='https://deauther.com/img/logo.png' alt='Deauther Logo' width='200' />
 
