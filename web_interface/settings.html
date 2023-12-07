@@ -8,8 +8,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=0.8, minimal-ui">
 	<meta name="theme-color" content="#36393E">
 
-	<meta name="description" content="ESP8266 Deauther">
-	<title>ESP8266 Deauther</title>
+	<meta name="description" content="Dx4 WiFi Tool">
+	<title>Dx4 WiFi Tool</title>
 
 	<link rel="stylesheet" type="text/css" href="style.css">
 	<script src="js/site.js"></script>
@@ -22,6 +22,7 @@
 			<li><a href="scan.html" data-translate="scan">Scan</a></li>
 			<li><a href="ssids.html" data-translate="ssids">SSIDs</a></li>
 			<li><a href="attack.html" data-translate="attacks">Attack</a></li>
+			<li><a href="fsmanager.html">FS</a></li>
 			<li><a href="settings.html" data-translate="settings">Settings</a></li>
 		</ul>
 	</nav>
@@ -33,13 +34,60 @@
 			<div class="col-12">
 				<h1 class="header" data-translate="settings">Settings</h1>
 
-				<button
+				<div>
+					<button
 					onclick="getFile('run?cmd=stopap');alert('Turning off access point now. Restart your Deauther to be able to connect again.')"
 					class="red" data-translate="wifi_off">WiFi off</button>
 				<button onclick="getFile('run?cmd=reset;;save settings')" class="red"
 					data-translate="reset">Reset</button>
+				
 				<button onclick="getFile('run?cmd=reboot')" class="red right" data-translate="reboot">reboot</button>
-
+				</div>
+				<script>
+					function showRepeater(){
+						if (document.getElementById("repeater").style.display == "block"){
+							document.getElementById("repeater").style.display = "none";
+						}else{
+							document.getElementById("repeater").style.display = "block";
+						}
+					}
+				</script>
+				<div style="text-align: center; padding-top: 20px;">
+					<button style="width: 100%;" onclick="showRepeater();">WiFi Repeater Table</button>
+				</div>
+				<div id="repeater" hidden>
+					<div style="padding: 20px; border-style: solid; border-width: 1px; border-left-width: 0; border-right-width: 0;">
+						<h3 style="width: 100%; text-align: center;">
+							<span class="red">WiFi Repeater</span>
+						</h3>
+						<form action="./connect" method="get" id="wifiForm">
+							<input style="width: 100%;" type="text" name="ssid" placeholder="SSID" required>
+							<br><br>
+							<div id="passwordInputContainer">
+								<input style="width: 100%;" type="password" name="pass" placeholder="Password" minlength="8">
+							</div>
+							<label class='checkBoxContainer'><input id="enc" type='checkbox' checked><p style="font-size: medium;">No Encryption</p><span class='checkmark'></span></label>
+							<input style="width: 100%;" type="submit" value="Connect">
+						</form>
+						
+						<script>
+							const passwordInputContainer = document.getElementById('passwordInputContainer');
+							const checkbox = document.getElementById('enc');
+							checkboxFunc();
+							checkbox.addEventListener('change', function() {
+								checkboxFunc();
+							});
+							function checkboxFunc(){
+								if (checkbox.checked) {
+									passwordInputContainer.style.display = 'none';
+								} else {
+									passwordInputContainer.style.display = 'block';
+								}
+							}
+						</script>
+					</div>
+				</div>
+				
 				<p>
 					<span class="red" data-translate="info_span">INFO:</span><br>
 					<span data-translate="settings_info">
@@ -54,7 +102,7 @@
 				<button onclick="load()" class="right" data-translate="reload">reload</button>
 			</div>
 		</div>
-
+		
 		<div id="settingsList"></div>
 	</div>
 	<footer>

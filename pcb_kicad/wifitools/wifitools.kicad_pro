@@ -34,9 +34,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 0.762,
+          "drill": 0.0,
           "height": 1.524,
-          "width": 1.524
+          "width": 2.286
         },
         "silk_line_width": 0.15,
         "silk_text_italic": false,
@@ -389,7 +389,8 @@
   },
   "libraries": {
     "pinned_footprint_libs": [
-      "Downloads"
+      "Downloads",
+      "Lib"
     ],
     "pinned_symbol_libs": []
   },

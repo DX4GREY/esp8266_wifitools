@@ -9,7 +9,6 @@ function load() {
 		draw();
 	});
 }
-
 function draw() {
 	var html = "";
 	for (var key in settingsJson) {

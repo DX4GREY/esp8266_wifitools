@@ -4,6 +4,8 @@
 
 #include "settings.h"
 
+#include "EvilTwin.h"
+
 Attack::Attack() {
     getRandomMac(mac);
 
@@ -43,10 +45,11 @@ void Attack::start(bool beacon, bool deauth, bool deauthAll, bool probe, bool ou
 
     // if (((beacon || probe) && ssids.count() > 0) || (deauthAll && scan.countAll() > 0) || (deauth &&
     // scan.countSelected() > 0)){
-    if (beacon || probe || deauthAll || deauth) {
+    if (beacon || probe || deauthAll || deauth || !EvilTwin::isRunning()) {
         start();
     } else {
         prntln(A_NO_MODE_ERROR);
+        EvilTwin::stop();
         accesspoints.sort();
         stations.sort();
         stop();
@@ -147,6 +150,10 @@ String Attack::getStatusJSON() {
         beaconPkts) + String(COMMA) + String(beacon.maxPkts) + String(CLOSE_BRACKET) + String(COMMA);            // [false,0,0,0],
     json += String(OPEN_BRACKET) + b2s(probe.active) + String(COMMA) + String(ssids.count()) + String(COMMA) + String(
         probePkts) + String(COMMA) + String(probe.maxPkts) + String(CLOSE_BRACKET) + String(COMMA);              // [false,0,0,0],
+    json += String(OPEN_BRACKET) + b2s(deauth.active) + String(COMMA) + String(scan.countAll()) + String(COMMA) +
+            String(deauthPkts) + String(COMMA) + String(deauth.maxPkts) + String(CLOSE_BRACKET) + String(COMMA); // [false,0,0,0],
+    json += String(OPEN_BRACKET) + b2s(EvilTwin::isRunning()) + String(COMMA) + String(DOUBLEQUOTES) + String(
+        scan.getEndSSID()) + String(DOUBLEQUOTES) + String(CLOSE_BRACKET) + String(COMMA);                       // [false,"SSID"],
     json += String(packetRate);                                                                                  // 0
     json += CLOSE_BRACKET;                                                                                       // ]
 

@@ -6,6 +6,8 @@
 #include "settings.h"
 #include "wifi.h"
 
+#include "EvilTwin.h"
+
 /*
    Shitty code used less resources so I will keep this clusterfuck as it is,
    but if you're interested I made a library for this: github.com/spacehuhn/SimpleCLI
@@ -639,7 +641,7 @@ void CLI::runCommand(String input) {
     }
 
     // ===== ATTACK ===== //
-    // attack [-b] [-d] [-da] [p] [-t <timeout>]
+    // attack [-b] [-d] [-da] [-et] [p] [-t <timeout>]
     // attack status [<on/off>]
     else if (eqlsCMD(0, CLI_ATTACK)) {
         if (eqlsCMD(1, CLI_STATUS)) {
@@ -657,6 +659,7 @@ void CLI::runCommand(String input) {
         bool deauth      = false;
         bool deauthAll   = false;
         bool probe       = false;
+        bool evilTwin    = false;
         bool output      = true;
         uint32_t timeout = settings::getAttackSettings().timeout * 1000;
 
@@ -665,6 +668,7 @@ void CLI::runCommand(String input) {
             else if (eqlsCMD(i, CLI_DEAUTH)) deauth = true;
             else if (eqlsCMD(i, CLI_DEAUTHALL)) deauthAll = true;
             else if (eqlsCMD(i, CLI_PROBE)) probe = true;
+            else if (eqlsCMD(i, CLI_EVILTWIN)) evilTwin = true;
             else if (eqlsCMD(i, CLI_NOOUTPUT)) output = false;
             else if (eqlsCMD(i, CLI_TIMEOUT)) {
                 timeout = getTime(list->get(i + 1));
@@ -672,8 +676,16 @@ void CLI::runCommand(String input) {
             }
             else parameterError(list->get(i));
         }
-
-        attack.start(beacon, deauth, deauthAll, probe, output, timeout);
+        if (evilTwin && !EvilTwin::isRunning()){
+            if (scan.getEndSSID() != str("[Nothing]")){
+                EvilTwin::start(scan.getEndSSID().c_str());
+            }
+        }else if (EvilTwin::isRunning()){
+            EvilTwin::stop();
+        }else{
+            attack.start(beacon, deauth, deauthAll, probe, output, timeout);
+        }
+        
     }
 
     // ===== GET/SET ===== //
@@ -820,7 +832,10 @@ void CLI::runCommand(String input) {
         if ((list->size() >= 2) && !(eqlsCMD(1, CLI_ALL))) {
             for (int i = 1; i < list->size(); i++) {
                 if (eqlsCMD(i, CLI_SCAN)) scan.stop();
-                else if (eqlsCMD(i, CLI_ATTACK)) attack.stop();
+                else if (eqlsCMD(i, CLI_ATTACK)) {
+                    attack.stop();
+                    if (EvilTwin::isRunning()) EvilTwin::stop();
+                }
                 else if (eqlsCMD(i, CLI_SCRIPT)) this->stop();
                 else parameterError(list->get(i));
             }

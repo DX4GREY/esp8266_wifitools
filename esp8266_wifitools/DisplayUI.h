@@ -49,13 +49,9 @@ extern String leftRight(String a, String b, int len);
 extern String replaceUtf8(String str, String r);
 
 const char D_INTRO_0[] PROGMEM = "WiFi Tools v" DEAUTHER_VERSION;
-const char D_INTRO_1[] PROGMEM = ">   By Dx4  <";
+const char D_INTRO_1[] PROGMEM = "By Dx4";
 const char D_INTRO_2[] PROGMEM = DISPLAY_TEXT;
 const char D_RESETTING[] PROGMEM = "Resetting...";
-const char D_SCANNING_0[] PROGMEM = "> Memindai";
-const char D_SCANNING_1[] PROGMEM = "> Memindai.";
-const char D_SCANNING_2[] PROGMEM = "> Memindai..";
-const char D_SCANNING_3[] PROGMEM = "> Memindai...";
 
 struct MenuNode {
     std::function<String()>getStr; // function used to create the displayed string
@@ -82,6 +78,7 @@ enum class DISPLAY_MODE { OFF,
                           FLASHLIGHT,
                           CLOCK_DISPLAY,
                           RESETTING,
+                          SHUTDOWN,
                           ABOUT };
 
 class DisplayUI {
@@ -93,6 +90,7 @@ class DisplayUI {
         Button* down = NULL;
         Button* a    = NULL;
         Button* b    = NULL;
+
 
         // ===== adjustable ===== //
 #if defined(SSD1306_I2C)
@@ -110,7 +108,7 @@ class DisplayUI {
         const uint8_t buttonDelay      = 250;
         const uint8_t drawInterval     = 100; // 100ms = 10 FPS
         const uint16_t scrollSpeed     = 500; // time interval in ms
-        const uint16_t screenIntroTime = 2500;
+        const uint16_t screenIntroTime = 500;
         const uint16_t screenWidth     = 128;
         const uint16_t sreenHeight     = 64;
 
@@ -190,6 +188,7 @@ class DisplayUI {
         void drawFlashLight();
         void drawAbout();
         void drawResetting();
+        void drawShutdown();
         void clearMenu(Menu* menu);
 
         // menu functions

@@ -8,6 +8,16 @@ body {
 	margin: 0;
 }
 
+/* table, tr, th {
+	border: 1px solid;
+	border-collapse: collapse;
+	text-align: center;
+}
+
+th, td {
+	padding: 10px;
+} */
+
 h1 {
 	font-size: 1.7rem;
     margin-top: 1rem;
@@ -368,7 +378,7 @@ input[type="text"]{
 }
 
 input[type="file"] {
-    display: none;
+    display: block;
 }
 
 /* ==== GRID SYSTEM ==== */

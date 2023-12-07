@@ -189,7 +189,6 @@ namespace settings {
     void save(bool force) {
         if (force || changed) {
             EEPROMHelper::saveObject(SETTINGS_ADDR, data);
-
             changed = false;
 
             String json_buffer;

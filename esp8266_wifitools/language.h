@@ -136,6 +136,7 @@ const char CLI_BSSID[] PROGMEM = "bssid,-b";                   // bssid, -b
 const char CLI_BEACON[] PROGMEM = "beacon,-b";                 // bssid, -b
 const char CLI_DEAUTH[] PROGMEM = "deauth,-d";                 // deauth, -d
 const char CLI_DEAUTHALL[] PROGMEM = "deauthall,-da";          // deauthall, -da
+const char CLI_EVILTWIN[] PROGMEM = "eviltwin,-et";            // eviltwin, -et
 const char CLI_PROBE[] PROGMEM = "probe,-p";                   // probe, -p
 const char CLI_NOOUTPUT[] PROGMEM = "nooutput,-no";            // nooutput, -no
 const char CLI_FORCE[] PROGMEM = "force,-f";                   // force, -f
@@ -437,7 +438,6 @@ const char D_SCAN[] PROGMEM = "PINDAI";
 const char D_SHOW[] PROGMEM = "PILIH";
 const char D_ATTACK[] PROGMEM = "SERANG";
 const char D_FLASHLIGHT[] PROGMEM = "SENTER";
-const char D_SNAKE_GAME[] PROGMEM = "SNAKE GAME";
 const char D_PACKET_MONITOR[] PROGMEM = "PEMANTAU PAKET";
 const char D_DEAUTH_ALL[] PROGMEM = "DEAUTH ALL";
 const char D_EVIL_TWIN[] PROGMEM = "EVIL TWIN";
@@ -445,6 +445,7 @@ const char D_CLOCK[] PROGMEM = "JAM";
 const char D_CLOCK_DISPLAY[] PROGMEM = "TAMPILAN JAM";
 const char D_CLOCK_SET[] PROGMEM = "ATUR JAM";
 const char D_ABOUT[] PROGMEM = "TENTANG";
+const char D_SHUTDOWN[] PROGMEM = "SHUTDOWN";
 
 // MENU PINDAI
 const char D_SCAN_APST[] PROGMEM = "PINDAI AP + ST";
@@ -564,7 +565,39 @@ const char SS_RANDOM_ENABLED[] PROGMEM = "SSID random mode enabled";
 const char SS_RANDOM_DISABLED[] PROGMEM = "SSID random mode deactivated";
 const char SS_JSON_SSIDS[] PROGMEM = "ssids";
 const char SS_JSON_RANDOM[] PROGMEM = "random";
-const char SS_JSON_DEFAULT[] PROGMEM = "{\"random\":false,\"ssids\":[[\"Never gonna give you up\",false,23],[\"Never gonna let you down\",false,24],[\"Never gonna run around\",false,22],[\"Never gonna make you cry\",false,24],[\"Never gonna say goodbye\",false,23],[\"Never gonna tell a lie\",false,22],[\"Never gonna hurt you\",false,20],[\"Never gonna desert you\",false,22]]}";
+const char SS_JSON_DEFAULT[] PROGMEM = R"(
+{
+    "random": false,
+    "ssids": [
+        ["You'll never gonna get a break", false, 23],
+        ["You'll never gonna be reliable", false, 24],
+        ["You'll never gonna stop annoying", false, 22],
+        ["You'll never gonna cause joy", false, 24],
+        ["You'll never gonna hear a kind word", false, 23],
+        ["You'll never gonna be honest", false, 22],
+        ["You'll never gonna stop causing pain", false, 20],
+        ["You'll never gonna find loyalty", false, 22],
+        ["You'll never gonna have peace", false, 21],
+        ["You'll never gonna see kindness", false, 19],
+        ["You'll never gonna know love", false, 25],
+        ["You'll never gonna find happiness", false, 18],
+        ["You'll never gonna be trusted", false, 20],
+        ["You'll never gonna bring comfort", false, 23],
+        ["You'll never gonna be appreciated", false, 21],
+        ["You'll never gonna inspire confidence", false, 22],
+        ["You'll never gonna be respected", false, 24],
+        ["You'll never gonna stop causing trouble", false, 19],
+        ["You'll never gonna be praised", false, 25],
+        ["You'll never gonna be forgiven", false, 20],
+        ["You'll never gonna find support", false, 23],
+        ["You'll never gonna be valued", false, 22],
+        ["You'll never gonna be embraced", false, 21],
+        ["You'll never gonna stop disappointing", false, 24],
+        ["You'll never gonna be adored", false, 18]
+    ]
+}
+
+)";
 const char SS_RANDOM_INFO[] PROGMEM = "Generating new SSIDs... Type \"disable random\" to stop the random mode";
 
 // ===== SCAN ==== //

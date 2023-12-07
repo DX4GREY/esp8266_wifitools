@@ -1,4 +1,4 @@
-# ESP8266 Deauther
+# ESP8266 WiFi Tools
 
 <img src='https://deauther.com/img/logo.png' alt='Deauther Logo' width='200' />
 
@@ -18,7 +18,7 @@ Here are some quick links:
 
 ## Password
 
-The password for `pwned` is `deauther`
+The password for `A F` is `Dx4Grey`
 
 ## About this Project
 

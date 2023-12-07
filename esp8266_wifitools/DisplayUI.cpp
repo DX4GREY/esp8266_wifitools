@@ -7,6 +7,7 @@
 
 #include "settings.h"
 
+
 int analogInPin = A0;
 int sensorValue;
 float calibration;
@@ -148,6 +149,9 @@ void DisplayUI::setup()
                    addMenuNode(&mainMenu, D_ABOUT, [this]() {          // ABOUT
                         mode = DISPLAY_MODE::ABOUT;
                    });
+                   addMenuNode(&mainMenu, D_SHUTDOWN, [this]() {       // SHUTDOWN
+                        mode = DISPLAY_MODE::SHUTDOWN;
+                   });
 
 #ifdef HIGHLIGHT_LED
                    addMenuNode(&mainMenu, D_LED, [this]() { // LED
@@ -197,7 +201,7 @@ void DisplayUI::setup()
 
         for (int i = 0; i < c; i++) {
             addMenuNode(&apListMenu, [i]() {
-                return b2a(accesspoints.getSelected(i)) + accesspoints.getRSSI(i) + " | " + accesspoints.getSSID(i);
+                return b2a(accesspoints.getSelected(i)) + accesspoints.getRSSI(i) + " | " + b2a(accesspoints.getEnc(i) != 7) + accesspoints.getSSID(i);
             }, [this, i]() {
                 accesspoints.getSelected(i) ? accesspoints.deselect(i) : accesspoints.select(i);
             }, [this, i]() {
@@ -675,6 +679,16 @@ void DisplayUI::setupButtons()
         scrollCounter = 0;
         scrollTime    = currentTime;
         buttonTime    = currentTime;
+        if (mode == DISPLAY_MODE::SHUTDOWN){
+            if (!tempOff) {
+                WiFi.disconnect();
+                scan.stop();
+                accesspoints.removeAll();
+                off();
+            }else{
+                ESP.reset();
+            }
+        }
         if (!tempOff) {
             switch (mode) {
                 case DISPLAY_MODE::MENU:
@@ -685,11 +699,18 @@ void DisplayUI::setupButtons()
                     break;
 
                 case DISPLAY_MODE::PACKETMONITOR:
+                    mode = DISPLAY_MODE::MENU;
+                    display.setFont(DejaVu_Sans_Mono_12);
+                    display.setTextAlignment(TEXT_ALIGN_LEFT);
+                    break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     if (EvilTwin::isRunning()){
                         EvilTwin::stop();
                     }else{
-                        if (scan.getEndSSID() != str("[Nothing]")) EvilTwin::start(scan.getEndSSID().c_str());
+                        if (scan.getEndSSID() != str("[Nothing]")){
+                            EvilTwin::start(scan.getEndSSID().c_str());
+                            EvilTwin::pass = "";
+                        }
                     }
                     break;
                 case DISPLAY_MODE::FLASHLIGHT:
@@ -711,7 +732,6 @@ void DisplayUI::setupButtons()
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
-
                 case DISPLAY_MODE::CLOCK:
                 case DISPLAY_MODE::CLOCK_DISPLAY:
                     mode = DISPLAY_MODE::MENU;
@@ -748,6 +768,10 @@ void DisplayUI::setupButtons()
                     break;
 
                 case DISPLAY_MODE::PACKETMONITOR:
+                    mode = DISPLAY_MODE::MENU;
+                    display.setFont(DejaVu_Sans_Mono_12);
+                    display.setTextAlignment(TEXT_ALIGN_LEFT);
+                    break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     mode = DISPLAY_MODE::MENU;
                     display.setFont(DejaVu_Sans_Mono_12);
@@ -774,6 +798,12 @@ void DisplayUI::setupButtons()
                     break;
 
                 case DISPLAY_MODE::CLOCK:
+                    mode = DISPLAY_MODE::MENU;
+                    display.setFont(DejaVu_Sans_Mono_12);
+                    display.setTextAlignment(TEXT_ALIGN_LEFT);
+                    break;
+                
+                case DISPLAY_MODE::SHUTDOWN:
                     mode = DISPLAY_MODE::MENU;
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
@@ -858,17 +888,21 @@ void DisplayUI::draw(bool force)
         case DISPLAY_MODE::ABOUT:
             drawAbout();
             break;
+
+        case DISPLAY_MODE::SHUTDOWN:
+            drawShutdown();
+            break;
         }
 
         updateSuffix();
     }
 }
 void DisplayUI::drawAbout(){
-    drawString(0, center(str("WiFi Tools"), maxLen));
+    drawString(0, center(str("WiFi Tools V" DEAUTHER_VERSION), maxLen));
     drawString(1, leftRight("Creator :", "Dx4", maxLen));
     drawString(2, leftRight("Support :", "Fxxxx", maxLen));
     drawString(3, leftRight("Batt    :", (String)getBatteryPercentage() + "%", maxLen));
-    drawString(4, center(str("V" DEAUTHER_VERSION), maxLen));
+    drawString(4, leftRight("Core V  :", ESP.getCoreVersion(), maxLen));
 }
 void DisplayUI::drawEvilTwin()
 {
@@ -896,12 +930,18 @@ void DisplayUI::drawButtonTest()
     drawString(2, str(D_A) + b2s(a->read()));
     drawString(3, str(D_B) + b2s(b->read()));
 }
+void DisplayUI::drawShutdown(){
+    drawString(0, center(str(D_SHUTDOWN), maxLen));
+    drawString(1, left("Click (A) to OFF", maxLen));
+    drawString(2, left("Click (A) to ON", maxLen));
+}
 
 void DisplayUI::drawMenu()
 {
+    drawString(0, center(str(D_INTRO_0), maxLen));
     String tmp;
     int tmpLen;
-    int row = (currentMenu->selected / 5) * 5;
+    int row = (currentMenu->selected / 4) * 4;
 
     // correct selected if it's off
     if (currentMenu->selected < 0)
@@ -910,7 +950,7 @@ void DisplayUI::drawMenu()
         currentMenu->selected = currentMenu->list->size() - 1;
 
     // draw menu entries
-    for (int i = row; i < currentMenu->list->size() && i < row + 5; i++)
+    for (int i = row; i < currentMenu->list->size() && i < row + 4; i++)
     {
         tmp = currentMenu->list->get(i).getStr();
         tmpLen = tmp.length();
@@ -932,7 +972,7 @@ void DisplayUI::drawMenu()
         }
 
         tmp = (currentMenu->selected == i ? CURSOR : SPACE) + tmp;
-        drawString(0, (i - row) * 12, tmp);
+        drawString(0, ((i + 1) - row) * 12, tmp);
     }
 }
 
@@ -960,7 +1000,7 @@ void DisplayUI::drawPacketMonitor()
 {
     double scale = scan.getScaleFactor(sreenHeight - lineHeight - 2);
 
-    String headline = leftRight(str(D_CH) + getChannel() + String(' ') + String('[') + String(scan.deauths) + String(']'), String(scan.getPacketRate()) + str(D_PKTS), maxLen);
+    String headline = leftRight(str(D_CH) + getChannel() + String(' ') + String('[') + String(scan.deauths) + String(']'), String(scan.getPacketRate()) +" "+ str(D_PKTS), maxLen);
 
     drawString(0, 0, headline);
 
@@ -989,25 +1029,18 @@ void DisplayUI::drawPacketMonitor()
 
 void DisplayUI::drawIntro()
 {
-    drawString(0, center(str("WiFi Tools v" DEAUTHER_VERSION), maxLen));
-    drawString(1, center(str("By Dx4"), maxLen));
-    drawString(2, center(str(DISPLAY_TEXT), maxLen));
-    drawString(4, left(str(D_SCANNING_0), maxLen));
+    drawString(0, center(str(D_INTRO_0), maxLen));
+    drawString(1, center(str(D_INTRO_1), maxLen));
+    drawString(2, center(str(D_INTRO_2), maxLen));
+
     if (scan.isScanning())
     {
-        if (currentTime - startTime >= screenIntroTime + 4500)
-            drawString(4, left(str(D_SCANNING_3), maxLen));
-        else if (currentTime - startTime >= screenIntroTime + 3000)
-            drawString(4, left(str(D_SCANNING_2), maxLen));
-        else if (currentTime - startTime >= screenIntroTime + 1500)
-            drawString(4, left(str(D_SCANNING_1), maxLen));
-        else if (currentTime - startTime >= screenIntroTime)
-            drawString(4, left(str(D_SCANNING_0), maxLen));
+        drawString(4, left(str("> Memindai..."), maxLen));
     }
 }
 void DisplayUI::drawFlashLight()
 {
-    display.drawString(64, 20, digitalRead(D8) ? "ON" : "OFF");
+    display.drawString(64, 20, digitalRead(D8) ? "NYALA" : "MATI");
 }
 void DisplayUI::drawClock()
 {
@@ -1055,11 +1088,11 @@ void DisplayUI::changeMenu(Menu *menu)
         if (selectedID < 0)
             selectedID = 0;
 
-        if (currentMenu->parentMenu)
-        {
-            addMenuNode(currentMenu, D_BACK, currentMenu->parentMenu); // add [BACK]
-            currentMenu->selected = 1;
-        }
+        // if (currentMenu->parentMenu)
+        // {
+        //     addMenuNode(currentMenu, D_BACK, currentMenu->parentMenu); // add [BACK]
+        //     currentMenu->selected = 1;
+        // }
 
         if (currentMenu->build)
             currentMenu->build();

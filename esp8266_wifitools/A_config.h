@@ -389,7 +389,7 @@
 // ===== DISPLAY ===== //
   #define SSD1306_I2C
   #define FLIP_DIPLAY true
-  #define DISPLAY_TEXT "GitHub : @dx4grey"
+  #define DISPLAY_TEXT "GitHub : dx4grey"
 
 // ===== BUTTONS ===== //
   #define BUTTON_UP 14
@@ -452,7 +452,7 @@
 
 // ===== ACCESS POINT ===== //
 #ifndef AP_SSID
-  #define AP_SSID "Dx4Grey"
+  #define AP_SSID "A F"
 #endif /* ifndef AP_SSID */
 
 #ifndef AP_PASSWD
@@ -460,7 +460,7 @@
 #endif /* ifndef AP_PASSWD */
 
 #ifndef AP_HIDDEN
-  #define AP_HIDDEN true
+  #define AP_HIDDEN false
 #endif /* ifndef AP_HIDDEN */
 
 #ifndef AP_IP_ADDR
