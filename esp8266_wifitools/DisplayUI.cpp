@@ -149,6 +149,9 @@ void DisplayUI::setup()
                    addMenuNode(&mainMenu, D_ABOUT, [this]() {          // ABOUT
                         mode = DISPLAY_MODE::ABOUT;
                    });
+                   addMenuNode(&mainMenu, D_WSTATUS, [this]() {        // WIFI STATUS
+                        mode = DISPLAY_MODE::WSTATUS;
+                   });
                    addMenuNode(&mainMenu, D_SHUTDOWN, [this]() {       // SHUTDOWN
                         mode = DISPLAY_MODE::SHUTDOWN;
                    });
@@ -738,6 +741,11 @@ void DisplayUI::setupButtons()
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
+                case DISPLAY_MODE::WSTATUS:
+                    mode = DISPLAY_MODE::MENU;
+                    display.setFont(DejaVu_Sans_Mono_12);
+                    display.setTextAlignment(TEXT_ALIGN_LEFT);
+                    break;
             }
         } });
 
@@ -804,6 +812,11 @@ void DisplayUI::setupButtons()
                     break;
                 
                 case DISPLAY_MODE::SHUTDOWN:
+                    mode = DISPLAY_MODE::MENU;
+                    display.setFont(DejaVu_Sans_Mono_12);
+                    display.setTextAlignment(TEXT_ALIGN_LEFT);
+                    break;
+                case DISPLAY_MODE::WSTATUS:
                     mode = DISPLAY_MODE::MENU;
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
@@ -892,6 +905,10 @@ void DisplayUI::draw(bool force)
         case DISPLAY_MODE::SHUTDOWN:
             drawShutdown();
             break;
+        
+        case DISPLAY_MODE::WSTATUS:
+            drawWifiStatus();
+            break;
         }
 
         updateSuffix();
@@ -903,6 +920,13 @@ void DisplayUI::drawAbout(){
     drawString(2, leftRight("Support :", "Fxxxx", maxLen));
     drawString(3, leftRight("Batt    :", (String)getBatteryPercentage() + "%", maxLen));
     drawString(4, leftRight("Core V  :", ESP.getCoreVersion(), maxLen));
+}
+void DisplayUI::drawWifiStatus(){
+    drawString(0, center(str(D_WSTATUS), maxLen));
+    drawString(1, leftRight("Con    :", WiFi.SSID(), maxLen));
+    drawString(2, leftRight("IPAddr :", WiFi.localIP().toString(), maxLen));
+    drawString(3, leftRight("SoftAp :", WiFi.softAPSSID(), maxLen));
+    drawString(4, leftRight("Status :", WiFi.status() ? "Connected" : "No connected", maxLen));
 }
 void DisplayUI::drawEvilTwin()
 {

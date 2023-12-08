@@ -445,6 +445,7 @@ const char D_CLOCK[] PROGMEM = "JAM";
 const char D_CLOCK_DISPLAY[] PROGMEM = "TAMPILAN JAM";
 const char D_CLOCK_SET[] PROGMEM = "ATUR JAM";
 const char D_ABOUT[] PROGMEM = "TENTANG";
+const char D_WSTATUS[] PROGMEM = "WIFI STATUS";
 const char D_SHUTDOWN[] PROGMEM = "SHUTDOWN";
 
 // MENU PINDAI

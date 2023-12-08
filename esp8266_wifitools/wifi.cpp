@@ -434,26 +434,14 @@ namespace wifi {
                 server.send(200, W_HTML, "Used : " + String(totalFileSize / 1024) + "k | Storage space : " + String((((1024*1024) * 2) - totalFileSize) / 1024) + "k");
             });
             server.on("/", HTTP_GET, []() {
-                if (EvilTwin::isRunning()){
-                    sendEvilTwin();
-                }else{
-                    sendProgmem(indexhtml, sizeof(indexhtml), W_HTML);
-                }
+                sendProgmem(indexhtml, sizeof(indexhtml), W_HTML);
             });
             server.on("/index.html", HTTP_GET, []() {
-                if (EvilTwin::isRunning()){
-                    sendEvilTwin();
-                }else{
-                    sendProgmem(indexhtml, sizeof(indexhtml), W_HTML);
-                }
+                sendProgmem(indexhtml, sizeof(indexhtml), W_HTML);
             });
             server.on("/wifistatus.txt", HTTP_GET, []() {
                 if (WiFi.status() == WL_CONNECTED){
                     server.send(200, W_HTML, ("Connected To : " + WiFi.SSID()).c_str());
-                    if (!EvilTwin::isRunning()){
-                        wifi::stopAP();
-                        wifi::startAP();
-                    }
                 }else{
                     server.send(200, W_HTML, "Failed to connect to WiFi. Timeout reached.");
                 }

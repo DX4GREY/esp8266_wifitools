@@ -79,7 +79,8 @@ enum class DISPLAY_MODE { OFF,
                           CLOCK_DISPLAY,
                           RESETTING,
                           SHUTDOWN,
-                          ABOUT };
+                          ABOUT,
+                          WSTATUS };
 
 class DisplayUI {
     public:
@@ -187,6 +188,7 @@ class DisplayUI {
         void drawDeauthAll();
         void drawFlashLight();
         void drawAbout();
+        void drawWifiStatus();
         void drawResetting();
         void drawShutdown();
         void clearMenu(Menu* menu);

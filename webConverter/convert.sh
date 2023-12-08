@@ -7,5 +7,6 @@ main() {
     nameprog=$(echo "$filename" | sed 's/\.//g')
     echo "const char ${nameprog}[] PROGMEM = {$result};" > data.h
     rm -rf $filename.gz
+    cat data.h
 }
 main $1
