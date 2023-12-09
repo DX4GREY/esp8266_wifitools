@@ -962,6 +962,7 @@ void DisplayUI::drawShutdown(){
 
 void DisplayUI::drawMenu()
 {
+    display.drawRect(0, 0, screenWidth, sreenHeight);
     drawString(0, center(str(D_INTRO_0), maxLen));
     String tmp;
     int tmpLen;
@@ -1052,11 +1053,14 @@ void DisplayUI::drawPacketMonitor()
 }
 
 void DisplayUI::drawIntro()
-{
-    drawString(0, center(str(D_INTRO_0), maxLen));
-    drawString(1, center(str(D_INTRO_1), maxLen));
-    drawString(2, center(str(D_INTRO_2), maxLen));
-
+{   
+    // drawString(0, center(str(D_INTRO_0), maxLen));
+    // drawString(1, center(str(D_INTRO_1), maxLen));
+    // drawString(2, center(str(D_INTRO_2), maxLen));
+    drawString(1, leftRight(" WiFi", "Tool ", maxLen));
+    display.drawXbm(0,0,128,40,logo);
+    display.drawRect(0, 0, screenWidth, sreenHeight - (12 * 2));
+    
     if (scan.isScanning())
     {
         drawString(4, left(str("> Memindai..."), maxLen));
