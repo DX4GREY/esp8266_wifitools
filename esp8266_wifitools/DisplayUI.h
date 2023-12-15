@@ -114,6 +114,7 @@ enum class DISPLAY_MODE { OFF,
                           MENU,
                           LOADSCAN,
                           PACKETMONITOR,
+                          SNAKEGAME,
                           INTRO,
                           EVIL_TWIN,
                           DEAUTH_ALL,
@@ -202,7 +203,7 @@ class DisplayUI {
         Menu scanMenu;
         Menu showMenu;
         Menu attackMenu;
-        Menu clockMenu;
+        Menu toolsMenu;
         Menu evilTwinMenu;
 
         Menu apListMenu;
@@ -225,6 +226,7 @@ class DisplayUI {
         void drawMenu();
         void drawLoadingScan();
         void drawPacketMonitor();
+        void drawSnakeMain();
         void drawIntro();
         void drawEvilTwin();
         void drawDeauthAll();

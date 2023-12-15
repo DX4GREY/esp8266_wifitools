@@ -390,6 +390,7 @@
   #define SSD1306_I2C
   #define FLIP_DIPLAY true
   #define DISPLAY_TEXT "GitHub : dx4grey"
+  #define LIGHT 15
 
 // ===== BUTTONS ===== //
   #define BUTTON_UP 14

@@ -287,6 +287,7 @@ namespace wifi {
      */
     void startAP() {
         WiFi.softAPConfig(ip, ip, netmask);
+        WiFi.setOutputPower(20.5);
         WiFi.softAP(ap_settings.ssid, ap_settings.password, ap_settings.channel, ap_settings.hidden);
         wifi::startWebServer();
     }

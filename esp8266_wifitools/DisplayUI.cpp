@@ -4,9 +4,13 @@
 
 #include "EvilTwin.h"
 #include "wifi.h"
+#include "SnakeGame.h"
 
 #include "settings.h"
 
+extern "C" {
+  #include "user_interface.h"
+}
 
 int analogInPin = A0;
 int sensorValue;
@@ -60,7 +64,7 @@ void DisplayUI::configInit()
 
     display.clear();
     display.display();
-    pinMode(D8, OUTPUT);
+    pinMode(LIGHT, OUTPUT);
 }
 
 void DisplayUI::configOn()
@@ -128,24 +132,13 @@ void DisplayUI::setup()
                {
                    addMenuNode(&mainMenu, D_SCAN, &scanMenu);          /// SCAN
                    addMenuNode(&mainMenu, D_SHOW, &showMenu);          // SHOW
-                   addMenuNode(&mainMenu, D_DEAUTH_ALL, [this](){      // DEAUTH ALL
-                        mode = DISPLAY_MODE::DEAUTH_ALL;
-                   });
-                   addMenuNode(&mainMenu, D_EVIL_TWIN, [this](){       // EVIL TWIN
-                        mode = DISPLAY_MODE::EVIL_TWIN;
-                   });
                    addMenuNode(&mainMenu, D_ATTACK, &attackMenu);      // ATTACK
-                   addMenuNode(&mainMenu, D_PACKET_MONITOR, [this]() { // PACKET MONITOR
-                       scan.start(SCAN_MODE_SNIFFER, 0, SCAN_MODE_OFF, 0, false, wifi_channel);
-                       mode = DISPLAY_MODE::PACKETMONITOR;
-                   });
-                   addMenuNode(&mainMenu, D_FLASHLIGHT, [this](){       // FLASH LIGHT
-                        mode = DISPLAY_MODE::FLASHLIGHT;
+                   addMenuNode(&mainMenu, D_TOOLS, &toolsMenu);        // TOOLS
+                   addMenuNode(&mainMenu, D_SNAKEGAME, [this]() {   // RSSI MONITOR
+                        mode = DISPLAY_MODE::SNAKEGAME;
                         display.setFont(ArialMT_Plain_24);
                         display.setTextAlignment(TEXT_ALIGN_CENTER);
                    });
-                   addMenuNode(&mainMenu, D_CLOCK, &clockMenu);        // CLOCK
-
                    addMenuNode(&mainMenu, D_ABOUT, [this]() {          // ABOUT
                         mode = DISPLAY_MODE::ABOUT;
                    });
@@ -460,6 +453,12 @@ void DisplayUI::setup()
     // ATTACK MENU
     createMenu(&attackMenu, &mainMenu, [this]()
                {
+        addMenuNode(&attackMenu, D_DEAUTH_ALL, [this](){      // DEAUTH ALL
+            mode = DISPLAY_MODE::DEAUTH_ALL;
+       });
+        addMenuNode(&attackMenu, D_EVIL_TWIN, [this](){       // EVIL TWIN
+            mode = DISPLAY_MODE::EVIL_TWIN;
+       });
         addMenuNode(&attackMenu, [this]() { // *DEAUTH 0/0
             if (attack.isRunning()) return leftRight(b2a(deauthSelected) + str(D_DEAUTH),
                                                      (String)attack.getDeauthPkts() + SLASH +
@@ -509,18 +508,28 @@ void DisplayUI::setup()
         }); });
 
     // CLOCK MENU
-    createMenu(&clockMenu, &mainMenu, [this]()
+    createMenu(&toolsMenu, &mainMenu, [this]()
                {
-        addMenuNode(&clockMenu, D_CLOCK_DISPLAY, [this]() { // CLOCK
+        addMenuNode(&toolsMenu, D_CLOCK_DISPLAY, [this]() { // CLOCK
             mode = DISPLAY_MODE::CLOCK_DISPLAY;
             display.setFont(ArialMT_Plain_24);
             display.setTextAlignment(TEXT_ALIGN_CENTER);
         });
-        addMenuNode(&clockMenu, D_CLOCK_SET, [this]() { // CLOCK SET TIME
+        addMenuNode(&toolsMenu, D_CLOCK_SET, [this]() { // CLOCK SET TIME
             mode = DISPLAY_MODE::CLOCK;
             display.setFont(ArialMT_Plain_24);
             display.setTextAlignment(TEXT_ALIGN_CENTER);
-        }); });
+        }); 
+        addMenuNode(&toolsMenu, D_FLASHLIGHT, [this](){       // FLASH LIGHT
+            mode = DISPLAY_MODE::FLASHLIGHT;
+            display.setFont(ArialMT_Plain_24);
+            display.setTextAlignment(TEXT_ALIGN_CENTER);
+       });
+       addMenuNode(&toolsMenu, D_PACKET_MONITOR, [this]() { // PACKET MONITOR
+            scan.start(SCAN_MODE_SNIFFER, 0, SCAN_MODE_OFF, 0, false, wifi_channel);
+            mode = DISPLAY_MODE::PACKETMONITOR;
+        });
+    });
 
     // ===================== //
 
@@ -597,7 +606,9 @@ void DisplayUI::off()
         prntln(D_ERROR_NOT_ENABLED);
     }
 }
-
+void ESPreset(){
+    ESP.reset();
+}
 void DisplayUI::setupButtons()
 {
     up = new ButtonPullup(BUTTON_UP);
@@ -683,14 +694,8 @@ void DisplayUI::setupButtons()
         scrollTime    = currentTime;
         buttonTime    = currentTime;
         if (mode == DISPLAY_MODE::SHUTDOWN){
-            if (!tempOff) {
-                WiFi.disconnect();
-                scan.stop();
-                accesspoints.removeAll();
-                off();
-            }else{
-                ESP.reset();
-            }
+            off();
+            system_deep_sleep(0);
         }
         if (!tempOff) {
             switch (mode) {
@@ -706,6 +711,9 @@ void DisplayUI::setupButtons()
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
+                case DISPLAY_MODE::SNAKEGAME:
+                    SnakeGame::StartSnake();
+                    break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     if (EvilTwin::isRunning()){
                         EvilTwin::stop();
@@ -717,7 +725,7 @@ void DisplayUI::setupButtons()
                     }
                     break;
                 case DISPLAY_MODE::FLASHLIGHT:
-                    digitalWrite(D8, !digitalRead(D8));
+                    digitalWrite(LIGHT, !digitalRead(LIGHT));
                     break;
                 case DISPLAY_MODE::DEAUTH_ALL:
                     if (attack.isRunning()){
@@ -779,6 +787,9 @@ void DisplayUI::setupButtons()
                     mode = DISPLAY_MODE::MENU;
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
+                    break;
+                case DISPLAY_MODE::SNAKEGAME:
+                    ESPreset();
                     break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     mode = DISPLAY_MODE::MENU;
@@ -874,6 +885,10 @@ void DisplayUI::draw(bool force)
             drawPacketMonitor();
             break;
 
+        case DISPLAY_MODE::SNAKEGAME:
+            drawSnakeMain();
+            break;
+
         case DISPLAY_MODE::INTRO:
             if (!scan.isScanning() && (currentTime - startTime >= screenIntroTime))
             {
@@ -956,8 +971,8 @@ void DisplayUI::drawButtonTest()
 }
 void DisplayUI::drawShutdown(){
     drawString(0, center(str(D_SHUTDOWN), maxLen));
-    drawString(1, left("Click (A) to OFF", maxLen));
-    drawString(2, left("Click (A) to ON", maxLen));
+    drawString(1, left("Do you want continue?...", maxLen));
+    drawString(2, leftRight("(A) Yes", "(B) No", maxLen));
 }
 
 void DisplayUI::drawMenu()
@@ -1051,6 +1066,10 @@ void DisplayUI::drawPacketMonitor()
         // Serial.println("---------");
     }
 }
+void DisplayUI::drawSnakeMain()
+{
+    display.drawString(64, 20, "SnakeGame");
+}
 
 void DisplayUI::drawIntro()
 {   
@@ -1068,7 +1087,7 @@ void DisplayUI::drawIntro()
 }
 void DisplayUI::drawFlashLight()
 {
-    display.drawString(64, 20, digitalRead(D8) ? "NYALA" : "MATI");
+    display.drawString(64, 20, digitalRead(LIGHT) ? "NYALA" : "MATI");
 }
 void DisplayUI::drawClock()
 {
