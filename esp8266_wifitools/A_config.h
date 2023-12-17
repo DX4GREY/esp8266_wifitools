@@ -393,7 +393,9 @@
   #define LIGHT 15
 
 // ===== BUTTONS ===== //
+  #define BUTTON_LEFT 0
   #define BUTTON_UP 14
+  #define BUTTON_RIGHT 16
   #define BUTTON_DOWN 12
   #define BUTTON_A 13
   #define BUTTON_B 2

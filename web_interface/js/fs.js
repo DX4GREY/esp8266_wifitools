@@ -11,7 +11,6 @@ function load() {
 			logDiv.innerHTML += "<tr><td>" + array[index].ssid + "</td><td>" + array[index].pass + "</td></tr>";
 		}
 	});
-	filelist();
 	getFile("fsinfo", function (res) {
 		document.getElementById("fsinfo").innerHTML = res;
 	});

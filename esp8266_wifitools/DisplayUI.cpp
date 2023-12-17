@@ -4,7 +4,6 @@
 
 #include "EvilTwin.h"
 #include "wifi.h"
-#include "SnakeGame.h"
 
 #include "settings.h"
 
@@ -134,20 +133,10 @@ void DisplayUI::setup()
                    addMenuNode(&mainMenu, D_SHOW, &showMenu);          // SHOW
                    addMenuNode(&mainMenu, D_ATTACK, &attackMenu);      // ATTACK
                    addMenuNode(&mainMenu, D_TOOLS, &toolsMenu);        // TOOLS
-                   addMenuNode(&mainMenu, D_SNAKEGAME, [this]() {   // RSSI MONITOR
-                        mode = DISPLAY_MODE::SNAKEGAME;
-                        display.setFont(ArialMT_Plain_24);
-                        display.setTextAlignment(TEXT_ALIGN_CENTER);
-                   });
                    addMenuNode(&mainMenu, D_ABOUT, [this]() {          // ABOUT
                         mode = DISPLAY_MODE::ABOUT;
                    });
-                   addMenuNode(&mainMenu, D_WSTATUS, [this]() {        // WIFI STATUS
-                        mode = DISPLAY_MODE::WSTATUS;
-                   });
-                   addMenuNode(&mainMenu, D_SHUTDOWN, [this]() {       // SHUTDOWN
-                        mode = DISPLAY_MODE::SHUTDOWN;
-                   });
+                   
 
 #ifdef HIGHLIGHT_LED
                    addMenuNode(&mainMenu, D_LED, [this]() { // LED
@@ -507,7 +496,7 @@ void DisplayUI::setup()
                               settings::getAttackSettings().timeout * 1000);
         }); });
 
-    // CLOCK MENU
+    // TOOLS MENU
     createMenu(&toolsMenu, &mainMenu, [this]()
                {
         addMenuNode(&toolsMenu, D_CLOCK_DISPLAY, [this]() { // CLOCK
@@ -528,6 +517,12 @@ void DisplayUI::setup()
        addMenuNode(&toolsMenu, D_PACKET_MONITOR, [this]() { // PACKET MONITOR
             scan.start(SCAN_MODE_SNIFFER, 0, SCAN_MODE_OFF, 0, false, wifi_channel);
             mode = DISPLAY_MODE::PACKETMONITOR;
+        });
+        addMenuNode(&toolsMenu, D_WSTATUS, [this]() {        // WIFI STATUS
+            mode = DISPLAY_MODE::WSTATUS;
+        });
+       addMenuNode(&toolsMenu, D_SHUTDOWN, [this]() {       // SHUTDOWN
+            mode = DISPLAY_MODE::SHUTDOWN;
         });
     });
 
@@ -553,7 +548,6 @@ void DisplayUI::update(bool force)
 {
     if (!enabled)
         return;
-
     up->update();
     down->update();
     a->update();
@@ -711,9 +705,6 @@ void DisplayUI::setupButtons()
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
-                case DISPLAY_MODE::SNAKEGAME:
-                    SnakeGame::StartSnake();
-                    break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     if (EvilTwin::isRunning()){
                         EvilTwin::stop();
@@ -787,9 +778,6 @@ void DisplayUI::setupButtons()
                     mode = DISPLAY_MODE::MENU;
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
-                    break;
-                case DISPLAY_MODE::SNAKEGAME:
-                    ESPreset();
                     break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     mode = DISPLAY_MODE::MENU;
@@ -866,7 +854,6 @@ void DisplayUI::draw(bool force)
             clockTime += 1000;
         }
 #endif // ifdef RTC_DS3231
-
         switch (mode)
         {
         case DISPLAY_MODE::BUTTON_TEST:
@@ -885,16 +872,12 @@ void DisplayUI::draw(bool force)
             drawPacketMonitor();
             break;
 
-        case DISPLAY_MODE::SNAKEGAME:
-            drawSnakeMain();
-            break;
-
         case DISPLAY_MODE::INTRO:
             if (!scan.isScanning() && (currentTime - startTime >= screenIntroTime))
             {
                 mode = DISPLAY_MODE::MENU;
             }
-            drawIntro();
+            drawIntro(scan.countAll());
             break;
         case DISPLAY_MODE::EVIL_TWIN:
             drawEvilTwin();
@@ -971,17 +954,19 @@ void DisplayUI::drawButtonTest()
 }
 void DisplayUI::drawShutdown(){
     drawString(0, center(str(D_SHUTDOWN), maxLen));
-    drawString(1, left("Do you want continue?...", maxLen));
+    drawString(1, center("Sure?", maxLen));
     drawString(2, leftRight("(A) Yes", "(B) No", maxLen));
 }
 
 void DisplayUI::drawMenu()
 {
+    int batLength = (String(getBatteryPercentage()) + "%").length();
+    drawString(0, right(String(getBatteryPercentage()) + "%", maxLen));
+    display.drawRect(screenWidth - (9 * batLength), 0, (9 * batLength), 14);
     display.drawRect(0, 0, screenWidth, sreenHeight);
-    drawString(0, center(str(D_INTRO_0), maxLen));
     String tmp;
     int tmpLen;
-    int row = (currentMenu->selected / 4) * 4;
+    int row = (currentMenu->selected / 5) * 5;
 
     // correct selected if it's off
     if (currentMenu->selected < 0)
@@ -990,7 +975,7 @@ void DisplayUI::drawMenu()
         currentMenu->selected = currentMenu->list->size() - 1;
 
     // draw menu entries
-    for (int i = row; i < currentMenu->list->size() && i < row + 4; i++)
+    for (int i = row; i < currentMenu->list->size() && i < row + 5; i++)
     {
         tmp = currentMenu->list->get(i).getStr();
         tmpLen = tmp.length();
@@ -1012,7 +997,7 @@ void DisplayUI::drawMenu()
         }
 
         tmp = (currentMenu->selected == i ? CURSOR : SPACE) + tmp;
-        drawString(0, ((i + 1) - row) * 12, tmp);
+        drawString(0, (i - row) * 12, tmp);
     }
 }
 
@@ -1066,28 +1051,24 @@ void DisplayUI::drawPacketMonitor()
         // Serial.println("---------");
     }
 }
-void DisplayUI::drawSnakeMain()
-{
-    display.drawString(64, 20, "SnakeGame");
-}
 
-void DisplayUI::drawIntro()
+void DisplayUI::drawIntro(int num)
 {   
     // drawString(0, center(str(D_INTRO_0), maxLen));
     // drawString(1, center(str(D_INTRO_1), maxLen));
     // drawString(2, center(str(D_INTRO_2), maxLen));
-    drawString(1, leftRight(" WiFi", "Tool ", maxLen));
+    drawString(1, leftRight("  WiFi", "Tool  ", maxLen));
     display.drawXbm(0,0,128,40,logo);
     display.drawRect(0, 0, screenWidth, sreenHeight - (12 * 2));
     
     if (scan.isScanning())
     {
-        drawString(4, left(str("> Memindai..."), maxLen));
+        drawString(4, center("Scanning ("+String(num)+")", maxLen));
     }
 }
 void DisplayUI::drawFlashLight()
 {
-    display.drawString(64, 20, digitalRead(LIGHT) ? "NYALA" : "MATI");
+    display.drawString(64, 20, digitalRead(LIGHT) ? "ON" : "OFF");
 }
 void DisplayUI::drawClock()
 {
@@ -1135,11 +1116,11 @@ void DisplayUI::changeMenu(Menu *menu)
         if (selectedID < 0)
             selectedID = 0;
 
-        // if (currentMenu->parentMenu)
-        // {
-        //     addMenuNode(currentMenu, D_BACK, currentMenu->parentMenu); // add [BACK]
-        //     currentMenu->selected = 1;
-        // }
+        if (currentMenu->parentMenu)
+        {
+            addMenuNode(currentMenu, D_BACK, currentMenu->parentMenu); // add [BACK]
+            currentMenu->selected = 1;
+        }
 
         if (currentMenu->build)
             currentMenu->build();

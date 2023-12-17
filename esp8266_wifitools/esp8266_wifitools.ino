@@ -32,7 +32,6 @@ extern "C" {
 #include "DisplayUI.h"
 #include "EvilTwin.h"
 #include "A_config.h"
-#include "SnakeGame.h"
 
 #include "led.h"
 
@@ -162,7 +161,6 @@ void loop() {
 
     led::update();   // update LED color
     wifi::update();  // manage access point
-    SnakeGame::SnakeUpdate();
     attack.update(); // run attacks
     displayUI.update();
     cli.update();    // read and run serial input
