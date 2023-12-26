@@ -381,7 +381,6 @@
 // #define LED_PIN_B 2  // ESP-12 LEDS
   #define LED_DIGITAL
   #define ONE_HIT 0
-  #define LED_PIN_R 16
   #define LED_PIN_B 2
 
   #define I2C_SDA 4
@@ -425,7 +424,7 @@
 #endif /* ifndef RANDOM_TX */
 
 #ifndef ATTACK_TIMEOUT
-  #define ATTACK_TIMEOUT 600
+  #define ATTACK_TIMEOUT 0
 #endif /* ifndef ATTACK_TIMEOUT */
 
 #ifndef DEAUTHS_PER_TARGET

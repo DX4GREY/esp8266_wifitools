@@ -439,8 +439,6 @@ const char D_SHOW[] PROGMEM = "PILIH";
 const char D_ATTACK[] PROGMEM = "SERANG";
 const char D_FLASHLIGHT[] PROGMEM = "SENTER";
 const char D_PACKET_MONITOR[] PROGMEM = "PEMANTAU PAKET";
-const char D_DEAUTH_ALL[] PROGMEM = "DEAUTH ALL";
-const char D_EVIL_TWIN[] PROGMEM = "EVIL TWIN";
 const char D_TOOLS[] PROGMEM = "ALAT";
 const char D_CLOCK_DISPLAY[] PROGMEM = "TAMPILAN JAM";
 const char D_CLOCK_SET[] PROGMEM = "ATUR JAM";
@@ -467,6 +465,8 @@ const char D_RANDOM_MODE[] PROGMEM = "MODE ACAK";
 const char D_DEAUTH[] PROGMEM = "DEAUTH";
 const char D_BEACON[] PROGMEM = "BEACON";
 const char D_PROBE[] PROGMEM = "PROBE";
+const char D_DEAUTH_ALL[] PROGMEM = "DEAUTH ALL";
+const char D_EVIL_TWIN[] PROGMEM = "EVIL TWIN";
 const char D_START_ATTACK[] PROGMEM = "MULAI";
 const char D_STOP_ATTACK[] PROGMEM = "BERHENTI";
 
@@ -570,31 +570,16 @@ const char SS_JSON_DEFAULT[] PROGMEM = R"(
 {
     "random": false,
     "ssids": [
-        ["You'll never gonna get a break", false, 23],
-        ["You'll never gonna be reliable", false, 24],
-        ["You'll never gonna stop annoying", false, 22],
-        ["You'll never gonna cause joy", false, 24],
-        ["You'll never gonna hear a kind word", false, 23],
-        ["You'll never gonna be honest", false, 22],
-        ["You'll never gonna stop causing pain", false, 20],
-        ["You'll never gonna find loyalty", false, 22],
-        ["You'll never gonna have peace", false, 21],
-        ["You'll never gonna see kindness", false, 19],
-        ["You'll never gonna know love", false, 25],
-        ["You'll never gonna find happiness", false, 18],
-        ["You'll never gonna be trusted", false, 20],
-        ["You'll never gonna bring comfort", false, 23],
-        ["You'll never gonna be appreciated", false, 21],
-        ["You'll never gonna inspire confidence", false, 22],
-        ["You'll never gonna be respected", false, 24],
-        ["You'll never gonna stop causing trouble", false, 19],
-        ["You'll never gonna be praised", false, 25],
-        ["You'll never gonna be forgiven", false, 20],
-        ["You'll never gonna find support", false, 23],
-        ["You'll never gonna be valued", false, 22],
-        ["You'll never gonna be embraced", false, 21],
-        ["You'll never gonna stop disappointing", false, 24],
-        ["You'll never gonna be adored", false, 18]
+        ["Kill your self", false, 23],
+        ["Hate your self", true, 24],
+        ["Fuck you all", false, 22],
+        ["I Have all about u", true, 24],
+        ["I think i will die", false, 23],
+        ["What are u doing?", true, 22],
+        ["Love is a bullshit", false, 20],
+        ["I wanna die", true, 22],
+        ["I can kill you...", false, 21],
+        ["Fuck you", true, 19]
     ]
 }
 

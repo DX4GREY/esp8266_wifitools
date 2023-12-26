@@ -225,13 +225,14 @@ class DisplayUI {
         void drawMenu();
         void drawLoadingScan();
         void drawPacketMonitor();
-        void drawIntro(int num);
+        void drawIntro();
         void drawEvilTwin();
         void drawDeauthAll();
         void drawFlashLight();
         void drawAbout();
         void drawWifiStatus();
         void drawResetting();
+        void drawCharging();
         void drawShutdown();
         void clearMenu(Menu* menu);
 

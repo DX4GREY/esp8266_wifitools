@@ -4,7 +4,7 @@
 
 #include "EvilTwin.h"
 #include "wifi.h"
-
+#include <Arduino.h>
 #include "settings.h"
 
 extern "C" {
@@ -25,7 +25,7 @@ float mapfloat(float x, float in_min, float in_max, float out_min, float out_max
 
 int getBatteryPercentage(){
     sensorValue = analogRead(analogInPin);
-    float voltage = (((sensorValue * 3.3) / 1024) * 2 + calibration); //multiply by two as voltage divider network is 100K & 100K Resistor
+    float voltage = (((sensorValue * 3.3) / 1024) * 2.2 + calibration); //multiply by two as voltage divider network is 100K & 100K Resistor
     if (millis() - lastMillisBatt >= 2 * 1000){
         bat_percentage = mapfloat(voltage, 2.8, 4.2, 0, 100);
         lastMillisBatt = millis();
@@ -509,19 +509,19 @@ void DisplayUI::setup()
             display.setFont(ArialMT_Plain_24);
             display.setTextAlignment(TEXT_ALIGN_CENTER);
         }); 
-        addMenuNode(&toolsMenu, D_FLASHLIGHT, [this](){       // FLASH LIGHT
-            mode = DISPLAY_MODE::FLASHLIGHT;
-            display.setFont(ArialMT_Plain_24);
-            display.setTextAlignment(TEXT_ALIGN_CENTER);
-       });
-       addMenuNode(&toolsMenu, D_PACKET_MONITOR, [this]() { // PACKET MONITOR
+        // addMenuNode(&toolsMenu, D_FLASHLIGHT, [this](){       // FLASH LIGHT
+        //     mode = DISPLAY_MODE::FLASHLIGHT;
+        //     display.setFont(ArialMT_Plain_24);
+        //     display.setTextAlignment(TEXT_ALIGN_CENTER);
+        // });
+        addMenuNode(&toolsMenu, D_PACKET_MONITOR, [this]() { // PACKET MONITOR
             scan.start(SCAN_MODE_SNIFFER, 0, SCAN_MODE_OFF, 0, false, wifi_channel);
             mode = DISPLAY_MODE::PACKETMONITOR;
         });
         addMenuNode(&toolsMenu, D_WSTATUS, [this]() {        // WIFI STATUS
             mode = DISPLAY_MODE::WSTATUS;
         });
-       addMenuNode(&toolsMenu, D_SHUTDOWN, [this]() {       // SHUTDOWN
+        addMenuNode(&toolsMenu, D_SHUTDOWN, [this]() {       // SHUTDOWN
             mode = DISPLAY_MODE::SHUTDOWN;
         });
     });
@@ -548,13 +548,14 @@ void DisplayUI::update(bool force)
 {
     if (!enabled)
         return;
+    
     up->update();
     down->update();
     a->update();
     b->update();
-
+    
     draw(force);
-
+    
     uint32_t timeout = settings::getDisplaySettings().timeout * 1000;
 
     if (currentTime > timeout)
@@ -701,10 +702,6 @@ void DisplayUI::setupButtons()
                     break;
 
                 case DISPLAY_MODE::PACKETMONITOR:
-                    mode = DISPLAY_MODE::MENU;
-                    display.setFont(DejaVu_Sans_Mono_12);
-                    display.setTextAlignment(TEXT_ALIGN_LEFT);
-                    break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     if (EvilTwin::isRunning()){
                         EvilTwin::stop();
@@ -775,10 +772,6 @@ void DisplayUI::setupButtons()
                     break;
 
                 case DISPLAY_MODE::PACKETMONITOR:
-                    mode = DISPLAY_MODE::MENU;
-                    display.setFont(DejaVu_Sans_Mono_12);
-                    display.setTextAlignment(TEXT_ALIGN_LEFT);
-                    break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     mode = DISPLAY_MODE::MENU;
                     display.setFont(DejaVu_Sans_Mono_12);
@@ -877,7 +870,7 @@ void DisplayUI::draw(bool force)
             {
                 mode = DISPLAY_MODE::MENU;
             }
-            drawIntro(scan.countAll());
+            drawIntro();
             break;
         case DISPLAY_MODE::EVIL_TWIN:
             drawEvilTwin();
@@ -952,6 +945,10 @@ void DisplayUI::drawButtonTest()
     drawString(2, str(D_A) + b2s(a->read()));
     drawString(3, str(D_B) + b2s(b->read()));
 }
+void DisplayUI::drawCharging()
+{
+    drawString(2, center(str("Charging..."), maxLen));
+}
 void DisplayUI::drawShutdown(){
     drawString(0, center(str(D_SHUTDOWN), maxLen));
     drawString(1, center("Sure?", maxLen));
@@ -960,9 +957,11 @@ void DisplayUI::drawShutdown(){
 
 void DisplayUI::drawMenu()
 {
-    int batLength = (String(getBatteryPercentage()) + "%").length();
-    drawString(0, right(String(getBatteryPercentage()) + "%", maxLen));
-    display.drawRect(screenWidth - (9 * batLength), 0, (9 * batLength), 14);
+    if (!currentMenu->parentMenu){
+        int batLength = (String(getBatteryPercentage()) + "%").length();
+        drawString(0, right(String(getBatteryPercentage()) + "%", maxLen));
+        display.drawRect(screenWidth - (9 * batLength), 0, (9 * batLength), 14);
+    }    
     display.drawRect(0, 0, screenWidth, sreenHeight);
     String tmp;
     int tmpLen;
@@ -1052,7 +1051,7 @@ void DisplayUI::drawPacketMonitor()
     }
 }
 
-void DisplayUI::drawIntro(int num)
+void DisplayUI::drawIntro()
 {   
     // drawString(0, center(str(D_INTRO_0), maxLen));
     // drawString(1, center(str(D_INTRO_1), maxLen));
@@ -1063,7 +1062,7 @@ void DisplayUI::drawIntro(int num)
     
     if (scan.isScanning())
     {
-        drawString(4, center("Scanning ("+String(num)+")", maxLen));
+        drawString(4, center("Memindai ("+String(accesspoints.count())+") ("+ String(stations.count()) +")", maxLen));
     }
 }
 void DisplayUI::drawFlashLight()

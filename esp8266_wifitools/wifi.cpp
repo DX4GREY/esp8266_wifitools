@@ -683,7 +683,6 @@ namespace wifi {
             prntln(W_STARTED_AP);
         }
     }
-
     void update() {
         if ((mode != wifi_mode_t::off) && !scan.isScanning()) {
             server.handleClient();
