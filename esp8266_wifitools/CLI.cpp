@@ -679,9 +679,11 @@ void CLI::runCommand(String input) {
         if (evilTwin && !EvilTwin::isRunning()){
             if (scan.getEndSSID() != str("[Nothing]")){
                 EvilTwin::start(scan.getEndSSID().c_str());
+                attack.start(false,true,false,false,false,0);
             }
         }else if (EvilTwin::isRunning()){
             EvilTwin::stop();
+            attack.stop();
         }else{
             attack.start(beacon, deauth, deauthAll, probe, output, timeout);
         }

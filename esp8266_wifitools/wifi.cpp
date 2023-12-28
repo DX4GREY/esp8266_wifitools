@@ -691,6 +691,7 @@ namespace wifi {
         if (WiFi.status() == WL_CONNECTED && EvilTwin::isRunning()){
             EvilTwin::pass = EvilTwin::passTesting;
             EvilTwin::stop();
+            attack.stop();
             saveWiFiEvil(EvilTwin::ssidT, EvilTwin::getpass());
         }
     }

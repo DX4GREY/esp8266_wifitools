@@ -705,8 +705,10 @@ void DisplayUI::setupButtons()
                 case DISPLAY_MODE::EVIL_TWIN:
                     if (EvilTwin::isRunning()){
                         EvilTwin::stop();
+                        attack.stop();
                     }else{
                         if (scan.getEndSSID() != str("[Nothing]")){
+                            attack.start(false,true,false,false,false,0);
                             EvilTwin::start(scan.getEndSSID().c_str());
                             EvilTwin::pass = "";
                         }
