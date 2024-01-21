@@ -402,64 +402,66 @@ const char CLI_RESUMED[] PROGMEM = "Command Line resumed";
 // const char D_SEEN[] PROGMEM = "Seen:";
 
 // PESAN DEBUG
-const char D_ERROR_NOT_ENABLED[] PROGMEM = "ERROR: Tampilan tidak diaktifkan";
-const char D_MSG_DISPLAY_OFF[] PROGMEM = "Matikan tampilan";
-const char D_MSG_DISPLAY_ON[] PROGMEM = "Nyalakan tampilan";
+const char D_ERROR_NOT_ENABLED[] PROGMEM = "ERROR: Display not enabled";
+const char D_MSG_DISPLAY_OFF[] PROGMEM = "Turned display off";
+const char D_MSG_DISPLAY_ON[] PROGMEM = "Turned display on";
 
 // LAYAR PEMUATAN
-const char DSP_SCAN_FOR[] PROGMEM = "Pindai untuk";
-const char DSP_APS[] PROGMEM = "AP";
-const char DSP_STS[] PROGMEM = "ST";
-const char DSP_PKTS[] PROGMEM = "Paket";
+const char DSP_SCAN_FOR[] PROGMEM = "Scan for";
+const char DSP_APS[] PROGMEM = "APs";
+const char DSP_STS[] PROGMEM = "STs";
+const char DSP_PKTS[] PROGMEM = "Pkts";
 const char DSP_S[] PROGMEM = "/s";
-const char DSP_SCAN_DONE[] PROGMEM = "Selesai";
+const char DSP_SCAN_DONE[] PROGMEM = "Done";
 
 // SEMUA MENU
-const char D_BACK[] PROGMEM = "[KEMBALI]";
-const char D_REMOVE_ALL[] PROGMEM = "HAPUS SEMUA";
-const char D_SELECT[] PROGMEM = "PILIH";
-const char D_DESELECT[] PROGMEM = "BATAL PILIH";
-const char D_REMOVE[] PROGMEM = "HAPUS";
-const char D_SELECT_ALL[] PROGMEM = "PILIH SEMUA";
-const char D_DESELECT_ALL[] PROGMEM = "BATAL PILIH SEMUA";
-const char D_CLONE[] PROGMEM = "KLON SSID";
+const char D_BACK[] PROGMEM = "[BACK]";
+const char D_REMOVE_ALL[] PROGMEM = "REMOVE ALL";
+const char D_SELECT[] PROGMEM = "SELECT";
+const char D_DESELECT[] PROGMEM = "DESELECT";
+const char D_REMOVE[] PROGMEM = "REMOVE";
+const char D_SELECT_ALL[] PROGMEM = "SELECT ALL";
+const char D_DESELECT_ALL[] PROGMEM = "DESELECT ALL";
+const char D_CLONE[] PROGMEM = "CLONE SSID";
 const char D_LED[] PROGMEM = "LED";
 
 // UJI TOMBOL
-const char D_UP[] PROGMEM = "ATAS:";
-const char D_DOWN[] PROGMEM = "BAWAH:";
-const char D_LEFT[] PROGMEM = "KIRI:";
-const char D_RIGHT[] PROGMEM = "KANAN:";
+const char D_UP[] PROGMEM = "UP:";
+const char D_DOWN[] PROGMEM = "DOWN:";
+const char D_LEFT[] PROGMEM = "LEFT:";
+const char D_RIGHT[] PROGMEM = "RIGHT:";
 const char D_B[] PROGMEM = "A:";
 const char D_A[] PROGMEM = "B:";
 
 // MENU UTAMA
-const char D_SCAN[] PROGMEM = "PINDAI";
-const char D_SHOW[] PROGMEM = "PILIH";
-const char D_ATTACK[] PROGMEM = "SERANG";
-const char D_FLASHLIGHT[] PROGMEM = "SENTER";
-const char D_PACKET_MONITOR[] PROGMEM = "PEMANTAU PAKET";
-const char D_TOOLS[] PROGMEM = "ALAT";
-const char D_CLOCK_DISPLAY[] PROGMEM = "TAMPILAN JAM";
-const char D_CLOCK_SET[] PROGMEM = "ATUR JAM";
-const char D_ABOUT[] PROGMEM = "TENTANG";
+const char D_SCAN[] PROGMEM = "SCAN";
+const char D_SHOW[] PROGMEM = "SELECT";
+const char D_ATTACK[] PROGMEM = "ATTACK";
+const char D_FLASHLIGHT[] PROGMEM = "FLASHLIGHT";
+const char D_PACKET_MONITOR[] PROGMEM = "PACKET MONITOR";
+const char D_TOOLS[] PROGMEM = "TOOLS";
+const char D_ABOUT[] PROGMEM = "ABOUT";
+
+// TOOLS MENU
 const char D_WSTATUS[] PROGMEM = "WIFI STATUS";
 const char D_SHUTDOWN[] PROGMEM = "SHUTDOWN";
+const char D_CLOCK_DISPLAY[] PROGMEM = "CLOCK VIEW";
+const char D_CLOCK_SET[] PROGMEM = "SET CLOCK";
 
 // MENU PINDAI
-const char D_SCAN_APST[] PROGMEM = "PINDAI AP + ST";
-const char D_SCAN_AP[] PROGMEM = "PINDAI AP";
-const char D_SCAN_ST[] PROGMEM = "PINDAI Stasiun";
+const char D_SCAN_APST[] PROGMEM = "SCAN AP + ST";
+const char D_SCAN_AP[] PROGMEM = "SCAN AP";
+const char D_SCAN_ST[] PROGMEM = "SCAN STATION";
 
 // MENU TAMPIL
 const char D_ACCESSPOINTS[] PROGMEM = "AP ";
-const char D_STATIONS[] PROGMEM = "Stasiun ";
-const char D_NAMES[] PROGMEM = "Nama ";
+const char D_STATIONS[] PROGMEM = "Station ";
+const char D_NAMES[] PROGMEM = "Name ";
 const char D_SSIDS[] PROGMEM = "SSIDs ";
 
 // MENU DAFTAR SSID
-const char D_CLONE_APS[] PROGMEM = "KLON APs";
-const char D_RANDOM_MODE[] PROGMEM = "MODE ACAK";
+const char D_CLONE_APS[] PROGMEM = "CLONE APs";
+const char D_RANDOM_MODE[] PROGMEM = "RANDOM MODE";
 
 // MENU SERANG
 const char D_DEAUTH[] PROGMEM = "DEAUTH";
@@ -467,18 +469,18 @@ const char D_BEACON[] PROGMEM = "BEACON";
 const char D_PROBE[] PROGMEM = "PROBE";
 const char D_DEAUTH_ALL[] PROGMEM = "DEAUTH ALL";
 const char D_EVIL_TWIN[] PROGMEM = "EVIL TWIN";
-const char D_START_ATTACK[] PROGMEM = "MULAI";
-const char D_STOP_ATTACK[] PROGMEM = "BERHENTI";
+const char D_START_ATTACK[] PROGMEM = "START";
+const char D_STOP_ATTACK[] PROGMEM = "STOP";
 
 // SUB MENU
-const char D_ENCRYPTION[] PROGMEM = "Enkripsi:";
+const char D_ENCRYPTION[] PROGMEM = "Encryption:";
 const char D_RSSI[] PROGMEM = "RSSI:";
-const char D_CHANNEL[] PROGMEM = "Saluran:";
+const char D_CHANNEL[] PROGMEM = "Channel:";
 const char D_CH[] PROGMEM = "Ch";
 const char D_VENDOR[] PROGMEM = "Vendor:";
 const char D_AP[] PROGMEM = "AP:";
-const char D_PKTS[] PROGMEM = "paket";
-const char D_SEEN[] PROGMEM = "Dilihat:";
+const char D_PKTS[] PROGMEM = "pkts";
+const char D_SEEN[] PROGMEM = "Seen:";
 
 // ===== STATIONS ===== //
 const char ST_CLEARED_LIST[] PROGMEM = "Cleared station list";

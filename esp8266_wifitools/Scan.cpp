@@ -456,7 +456,7 @@ String Scan::getEndSSID(){
     String ssidA = "[Nothing]";
     for (size_t i = 0; i < accesspoints.count(); i++)
     {
-        if (accesspoints.getSelected(i)){
+        if (accesspoints.getSelected(i) && accesspoints.getEnc(i) != ENC_TYPE_NONE){
             ssidA = accesspoints.getSSID(i);
         }
     }
@@ -467,7 +467,7 @@ String Scan::getEndRSSI(){
     String ssidA = "-100";
     for (size_t i = 0; i < accesspoints.count(); i++)
     {
-        if (accesspoints.getSelected(i)){
+        if (accesspoints.getSelected(i) && accesspoints.getEnc(i) != ENC_TYPE_NONE){
             ssidA = accesspoints.getRSSI(i);
         }
     }

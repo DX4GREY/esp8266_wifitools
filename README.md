@@ -1,24 +1,12 @@
-# Dx4 WiFi Tools
+# WiFi Tools (esp8266)
 
 <img src='https://deauther.com/img/logo.png' alt='Deauther Logo' width='200' />
 
 **Scan for WiFi devices, block selected connections, create dozens of networks and confuse WiFi scanners.**
 
-## New Documentation
-
-Hi 👋  
-Please visit [Deauther.com](https://deauther.com) for information about this project.  
-Here are some quick links:
-
-* [Buy](https://deauther.com/docs/buy)
-* [Download](https://deauther.com/docs/download)
-* [DIY Tutorial](https://deauther.com/docs/category/diy-tutorial)
-* [Usage](https://deauther.com/docs/category/usage)
-* [FAQ](https://deauther.com/docs/faq)
-
 ## Password
 
-The password for `A F` is `Dx4Grey`
+The password for `A F` is `Dx4White`
 
 ## About this Project
 

@@ -7,7 +7,7 @@
 #define DEBUG_BAUD 115200
 
 // #define DEFAULT_ESP8266
-#define NODEMCU
+#define DX4_WIFI_TOOLS
 // #define WEMOS_D1_MINI
 // #define HACKHELD_VEGA
 // #define DISPLAY_EXAMPLE_I2C
@@ -57,7 +57,27 @@
 // ========== CONFIGS ========== //
 
 // https://github.com/spacehuhntech/hackheld
-#if defined(HACKHELD_VEGA)
+
+#if defined(DX4_WIFI_TOOLS)
+// ===== LED ===== //
+  #define LED_DIGITAL
+  #define ONE_HIT 0
+  #define LED_PIN_B 2
+
+  #define I2C_SDA 4
+  #define I2C_SCL 5
+// ===== DISPLAY ===== //
+  #define SSD1306_I2C
+  #define FLIP_DIPLAY true
+  #define LIGHT 15
+
+// ===== BUTTONS ===== //
+  #define BUTTON_UP 14
+  #define BUTTON_DOWN 12
+  #define BUTTON_A 13
+  #define BUTTON_B 2
+
+#elif defined(HACKHELD_VEGA)
 // ===== LED ===== //
   #define USE_LED true
   #define LED_NEOPIXEL
@@ -620,7 +640,7 @@
 #endif // ifndef WEB_IP_ADDR
 
 #ifndef WEB_URL
-  #define WEB_URL "dx4.wifitools.com"
+  #define WEB_URL "wifitools.local"
 #endif // ifndef WEB_URL
 
 // ======== CONSTANTS ========== //

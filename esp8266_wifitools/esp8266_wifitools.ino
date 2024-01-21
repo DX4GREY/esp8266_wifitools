@@ -30,7 +30,6 @@ extern "C" {
 #include "Attack.h"
 #include "CLI.h"
 #include "DisplayUI.h"
-#include "EvilTwin.h"
 #include "A_config.h"
 
 #include "led.h"
@@ -52,11 +51,9 @@ simplebutton::Button* resetButton;
 uint32_t autosaveTime = 0;
 uint32_t currentTime  = 0;
 
-
 bool booted = false;
 
 void setup() {
-
     // for random generator
     randomSeed(os_random());
 
@@ -151,11 +148,11 @@ void setup() {
 
     // setup reset button
     resetButton = new ButtonPullup(RESET_BUTTON);
-    resetButton->setOnClicked([](){
-        displayUI.off();
-        system_deep_sleep(0);
+    resetButton->setOnDoubleClicked([](){
+        displayUI.shutDown();
     });
 }
+
 void loop() {
     currentTime = millis();
 
@@ -185,7 +182,7 @@ void loop() {
     }
 
     resetButton->update();
-    if (resetButton->holding(5000)) {
+    if (resetButton->holding(3000)) {
         led::setMode(LED_MODE::SCAN);
         DISPLAY_MODE _mode = displayUI.mode;
         displayUI.mode = DISPLAY_MODE::RESETTING;

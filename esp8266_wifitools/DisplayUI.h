@@ -8,6 +8,7 @@
 #include "SSIDs.h"
 #include "Scan.h"
 #include "Attack.h"
+#include "BatteryManagement.h"
 
 // ===== adjustable ===== //
 #if defined(SSD1306_I2C)
@@ -29,6 +30,7 @@
 #endif // ifdef RTC_DS3231
 
 #include "src/SimpleButton/SimpleButton.h"
+#include "ESP8266HTTPClient.h"
 
 using namespace simplebutton;
 
@@ -116,12 +118,11 @@ enum class DISPLAY_MODE { OFF,
                           PACKETMONITOR,
                           INTRO,
                           EVIL_TWIN,
-                          DEAUTH_ALL,
                           CLOCK,
-                          FLASHLIGHT,
                           CLOCK_DISPLAY,
                           RESETTING,
                           SHUTDOWN,
+                          RSSI_MONITOR,
                           ABOUT,
                           WSTATUS };
 
@@ -129,11 +130,14 @@ class DisplayUI {
     public:
         DISPLAY_MODE mode = DISPLAY_MODE::MENU;
         bool highlightLED = false;
+        bool tempOff = false;
 
         Button* up   = NULL;
         Button* down = NULL;
         Button* a    = NULL;
         Button* b    = NULL;
+
+        BatteryManagement battery;
 
         // ===== adjustable ===== //
 #if defined(SSD1306_I2C)
@@ -158,10 +162,13 @@ class DisplayUI {
         void configInit();
         void configOn();
         void configOff();
+        void shutDown();
         void updatePrefix();
+        void drawCharging();
         void updateSuffix();
         void drawString(int x, int y, String str);
         void drawString(int row, String str);
+        void drawProgressbar(int row, int progress, int max, long len);
         void drawLine(int x1, int y1, int x2, int y2);
         // ====================== //
 
@@ -187,11 +194,11 @@ class DisplayUI {
         uint32_t buttonTime = 0;   // last time a button was pressed
 
         bool enabled = false;      // display enabled
-        bool tempOff = false;
 
         // selected attack modes
         bool beaconSelected = false;
         bool deauthSelected = false;
+        bool deauthAllSelected = false;
         bool probeSelected  = false;
 
         // menus
@@ -227,12 +234,10 @@ class DisplayUI {
         void drawPacketMonitor();
         void drawIntro();
         void drawEvilTwin();
-        void drawDeauthAll();
-        void drawFlashLight();
         void drawAbout();
+        void drawRssiMonitor();
         void drawWifiStatus();
         void drawResetting();
-        void drawCharging();
         void drawShutdown();
         void clearMenu(Menu* menu);
 

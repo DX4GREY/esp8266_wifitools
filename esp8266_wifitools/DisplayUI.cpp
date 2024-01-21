@@ -11,37 +11,11 @@ extern "C" {
   #include "user_interface.h"
 }
 
-int analogInPin = A0;
-int sensorValue;
-float calibration;
-int lastMillisBatt = 0;
-
-float bat_percentage;
-
-float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
-{
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-int getBatteryPercentage(){
-    sensorValue = analogRead(analogInPin);
-    float voltage = (((sensorValue * 3.3) / 1024) * 2.2 + calibration); //multiply by two as voltage divider network is 100K & 100K Resistor
-    if (millis() - lastMillisBatt >= 2 * 1000){
-        bat_percentage = mapfloat(voltage, 2.8, 4.2, 0, 100);
-        lastMillisBatt = millis();
-    }
-    
-    if (bat_percentage>= 100)
-    {
-        bat_percentage = 100;
-    }
-    if (bat_percentage<= 0)
-    {
-        bat_percentage = 1;
-    }
-    return (int)bat_percentage;
-}
-
+// The following values are from https://www.intuitibits.com/2016/03/23/dbm-to-percent-conversion/
+int signal_dBM[] = {-100, -99, -98, -97, -96, -95, -94, -93, -92, -91, -90, -89, -88, -87, -86, -85, -84, -83, -82, -81, -80, -79, -78, -77, -76, -75, -74, -73, -72, -71, -70, -69, -68, -67, -66, -65, -64, -63, -62, -61, -60, -59, -58, -57, -56, -55, -54, -53, -52, -51, -50, -49, -48, -47, -46, -45, -44, -43, -42, -41, -40, -39, -38, -37, -36, -35, -34, -33, -32, -31, -30, -29, -28, -27, -26, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1};
+int signal_percent[] = {0, 0, 0, 0, 0, 0, 4, 6, 8, 11, 13, 15, 17, 19, 21, 23, 26, 28, 30, 32, 34, 35, 37, 39, 41, 43, 45, 46, 48, 50, 52, 53, 55, 56, 58, 59, 61, 62, 64, 65, 67, 68, 69, 71, 72, 73, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 90, 91, 92, 93, 93, 94, 95, 95, 96, 96, 97, 97, 98, 98, 99, 99, 99, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
+int strength = 0;
+int percentage = 0;
 
 // ===== adjustable ===== //
 void DisplayUI::configInit()
@@ -64,6 +38,19 @@ void DisplayUI::configInit()
     display.clear();
     display.display();
     pinMode(LIGHT, OUTPUT);
+}
+
+void DisplayUI::shutDown(){
+    configOn();
+    updatePrefix();
+    display.setFont(DejaVu_Sans_Mono_12);
+    display.setTextAlignment(OLEDDISPLAY_TEXT_ALIGNMENT::TEXT_ALIGN_LEFT);
+    display.drawXbm(0,0,128,40,logo);
+    drawString(3,center("Shuting down..", maxLen));
+    updateSuffix();
+    delay(2000);
+    configOff();
+    system_deep_sleep(0);
 }
 
 void DisplayUI::configOn()
@@ -90,6 +77,29 @@ void DisplayUI::drawString(int x, int y, String str)
 {
     display.drawString(x, y, replaceUtf8(str, String(QUESTIONMARK)));
 }
+
+void DisplayUI::drawProgressbar(int row, int progress, int max, long len) {
+    int length = len - 2;
+    String tmpStr = String("[");
+    
+    // Avoid division by zero
+    if (length <= 0) {
+        // Handle the error appropriately
+        return;
+    }
+    
+    int maxPercent = 100 / length;
+    int progPercent = (progress * 100) / max;
+    int numFilledChars = (progPercent * length) / 100;
+
+    for (size_t i = 0; i < length; i++) {
+        tmpStr += i < numFilledChars ? "=" : "-";
+    }
+    tmpStr += String("]");
+
+    drawString(row, tmpStr);
+}
+
 
 void DisplayUI::drawString(int row, String str)
 {
@@ -442,12 +452,22 @@ void DisplayUI::setup()
     // ATTACK MENU
     createMenu(&attackMenu, &mainMenu, [this]()
                {
-        addMenuNode(&attackMenu, D_DEAUTH_ALL, [this](){      // DEAUTH ALL
-            mode = DISPLAY_MODE::DEAUTH_ALL;
-       });
         addMenuNode(&attackMenu, D_EVIL_TWIN, [this](){       // EVIL TWIN
             mode = DISPLAY_MODE::EVIL_TWIN;
        });
+       addMenuNode(&attackMenu, [this]() { // *DEAUTH ALL 0/0
+            if (attack.isRunning()) return leftRight(b2a(deauthAllSelected) + str(D_DEAUTH_ALL),
+                                                     (String)attack.getDeauthPkts() + SLASH +
+                                                     (String)attack.getDeauthMaxPkts(), maxLen - 1);
+            else return leftRight(b2a(deauthAllSelected) + str(D_DEAUTH_ALL), (String)scan.countAll(), maxLen - 1);
+        }, [this]() { // deauth
+            deauthAllSelected = !deauthAllSelected;
+
+            if (attack.isRunning()) {
+                attack.start(beaconSelected, deauthSelected, deauthAllSelected, probeSelected, true,
+                             settings::getAttackSettings().timeout * 1000);
+            }
+        });
         addMenuNode(&attackMenu, [this]() { // *DEAUTH 0/0
             if (attack.isRunning()) return leftRight(b2a(deauthSelected) + str(D_DEAUTH),
                                                      (String)attack.getDeauthPkts() + SLASH +
@@ -457,7 +477,7 @@ void DisplayUI::setup()
             deauthSelected = !deauthSelected;
 
             if (attack.isRunning()) {
-                attack.start(beaconSelected, deauthSelected, false, probeSelected, true,
+                attack.start(beaconSelected, deauthSelected, deauthAllSelected, probeSelected, true,
                              settings::getAttackSettings().timeout * 1000);
             }
         });
@@ -470,7 +490,7 @@ void DisplayUI::setup()
             beaconSelected = !beaconSelected;
 
             if (attack.isRunning()) {
-                attack.start(beaconSelected, deauthSelected, false, probeSelected, true,
+                attack.start(beaconSelected, deauthSelected, deauthAllSelected, probeSelected, true,
                              settings::getAttackSettings().timeout * 1000);
             }
         });
@@ -483,7 +503,7 @@ void DisplayUI::setup()
             probeSelected = !probeSelected;
 
             if (attack.isRunning()) {
-                attack.start(beaconSelected, deauthSelected, false, probeSelected, true,
+                attack.start(beaconSelected, deauthSelected, deauthAllSelected, probeSelected, true,
                              settings::getAttackSettings().timeout * 1000);
             }
         });
@@ -492,8 +512,8 @@ void DisplayUI::setup()
                              attack.getPacketRate() > 0 ? (String)attack.getPacketRate() : String(), maxLen - 1);
         }, [this]() {
             if (attack.isRunning()) attack.stop();
-            else attack.start(beaconSelected, deauthSelected, false, probeSelected, true,
-                              settings::getAttackSettings().timeout * 1000);
+            else attack.start(beaconSelected, deauthSelected, deauthAllSelected, probeSelected, true,
+                             settings::getAttackSettings().timeout * 1000);
         }); });
 
     // TOOLS MENU
@@ -553,24 +573,30 @@ void DisplayUI::update(bool force)
     down->update();
     a->update();
     b->update();
-    
-    draw(force);
-    
-    uint32_t timeout = settings::getDisplaySettings().timeout * 1000;
+    if (battery.isChargingMode()){
+        updatePrefix();
+        drawCharging();
+        updateSuffix();
+    }else
+        draw(force);
 
-    if (currentTime > timeout)
-    {
-        if (!tempOff)
+    uint32_t timeout = settings::getDisplaySettings().timeout * 1000;
+    if (settings::getDisplaySettings().timeout != 0){
+        if (currentTime > timeout)
         {
-            if (buttonTime < currentTime - timeout)
-                off();
-        }
-        else
-        {
-            if (buttonTime > currentTime - timeout)
-                on();
+            if (!tempOff)
+            {
+                if (buttonTime < currentTime - timeout)
+                    off();
+            }
+            else
+            {
+                if (buttonTime > currentTime - timeout)
+                    on();
+            }
         }
     }
+    
 }
 
 void DisplayUI::on()
@@ -689,8 +715,7 @@ void DisplayUI::setupButtons()
         scrollTime    = currentTime;
         buttonTime    = currentTime;
         if (mode == DISPLAY_MODE::SHUTDOWN){
-            off();
-            system_deep_sleep(0);
+            shutDown();
         }
         if (!tempOff) {
             switch (mode) {
@@ -702,6 +727,8 @@ void DisplayUI::setupButtons()
                     break;
 
                 case DISPLAY_MODE::PACKETMONITOR:
+                    scan.stop();
+                    break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     if (EvilTwin::isRunning()){
                         EvilTwin::stop();
@@ -712,16 +739,6 @@ void DisplayUI::setupButtons()
                             EvilTwin::start(scan.getEndSSID().c_str());
                             EvilTwin::pass = "";
                         }
-                    }
-                    break;
-                case DISPLAY_MODE::FLASHLIGHT:
-                    digitalWrite(LIGHT, !digitalRead(LIGHT));
-                    break;
-                case DISPLAY_MODE::DEAUTH_ALL:
-                    if (attack.isRunning()){
-                        attack.stop();
-                    }else{
-                        attack.start(false,false,true,false,false,0);
                     }
                     break;
                 case DISPLAY_MODE::LOADSCAN:
@@ -740,9 +757,9 @@ void DisplayUI::setupButtons()
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
                 case DISPLAY_MODE::WSTATUS:
-                    mode = DISPLAY_MODE::MENU;
-                    display.setFont(DejaVu_Sans_Mono_12);
-                    display.setTextAlignment(TEXT_ALIGN_LEFT);
+                    mode = DISPLAY_MODE::RSSI_MONITOR;
+                    display.setFont(ArialMT_Plain_10);
+                    display.setTextAlignment(TEXT_ALIGN_CENTER);
                     break;
             }
         } });
@@ -779,13 +796,8 @@ void DisplayUI::setupButtons()
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
-                case DISPLAY_MODE::DEAUTH_ALL:
-                    mode = DISPLAY_MODE::MENU;
-                    display.setFont(DejaVu_Sans_Mono_12);
-                    display.setTextAlignment(TEXT_ALIGN_LEFT);
-                    break;
-                case DISPLAY_MODE::FLASHLIGHT:
-                    mode = DISPLAY_MODE::MENU;
+                case DISPLAY_MODE::RSSI_MONITOR:
+                    mode = DISPLAY_MODE::WSTATUS;
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
@@ -877,12 +889,6 @@ void DisplayUI::draw(bool force)
         case DISPLAY_MODE::EVIL_TWIN:
             drawEvilTwin();
             break;
-        case DISPLAY_MODE::FLASHLIGHT:
-            drawFlashLight();
-            break;
-        case DISPLAY_MODE::DEAUTH_ALL:
-            drawDeauthAll();
-            break;
         case DISPLAY_MODE::CLOCK:
         case DISPLAY_MODE::CLOCK_DISPLAY:
             drawClock();
@@ -902,17 +908,22 @@ void DisplayUI::draw(bool force)
         case DISPLAY_MODE::WSTATUS:
             drawWifiStatus();
             break;
+        case DISPLAY_MODE::RSSI_MONITOR:
+            drawRssiMonitor();
+            break;
         }
 
         updateSuffix();
     }
 }
 void DisplayUI::drawAbout(){
+    String cver = ESP.getCoreVersion();
+    cver.replace("_", ".");
     drawString(0, center(str("WiFi Tools V" DEAUTHER_VERSION), maxLen));
     drawString(1, leftRight("Creator :", "Dx4", maxLen));
     drawString(2, leftRight("Support :", "Fxxxx", maxLen));
-    drawString(3, leftRight("Batt    :", (String)getBatteryPercentage() + "%", maxLen));
-    drawString(4, leftRight("Core V  :", ESP.getCoreVersion(), maxLen));
+    drawString(3, leftRight("Cpu Freq :", (String)ESP.getCpuFreqMHz() + "Mhz", maxLen));
+    drawString(4, leftRight("Core V :", cver, maxLen));
 }
 void DisplayUI::drawWifiStatus(){
     drawString(0, center(str(D_WSTATUS), maxLen));
@@ -925,21 +936,11 @@ void DisplayUI::drawEvilTwin()
 {
     drawString(0, center(str(D_EVIL_TWIN), maxLen));
     drawString(1, leftRight("Target :", scan.getEndSSID(), maxLen));
-    drawString(2, leftRight("Status :", EvilTwin::isRunning() ? "True" : "False", maxLen));
+    drawString(2, leftRight("Status :", EvilTwin::isRunning() ? "Run" : "Idle", maxLen));
     drawString(3, leftRight("Pass   :", EvilTwin::getpass(), maxLen));
     drawString(4, leftRight("RSSI   :", scan.getEndRSSI(), maxLen));
 }
 
-void DisplayUI::drawDeauthAll()
-{
-    drawString(0, center(str(D_DEAUTH_ALL), maxLen));
-    drawString(1, leftRight("COUNT   :", (String)scan.countAll(), maxLen));
-    drawString(2, leftRight("PAKET   :", attack.isRunning() ? 
-                                        (String)attack.getDeauthPkts() + SLASH +
-                                        (String)attack.getDeauthMaxPkts(): "0/0", maxLen));
-    drawString(3, leftRight("STATUS  :", attack.isRunning() ? "Running" : "No", maxLen));
-    
-}
 void DisplayUI::drawButtonTest()
 {
     drawString(0, str(D_UP) + b2s(up->read()));
@@ -949,7 +950,37 @@ void DisplayUI::drawButtonTest()
 }
 void DisplayUI::drawCharging()
 {
-    drawString(2, center(str("Charging..."), maxLen));
+    display.setFont(DejaVu_Sans_Mono_12);
+    display.setTextAlignment(OLEDDISPLAY_TEXT_ALIGNMENT::TEXT_ALIGN_LEFT);
+    display.drawXbm(0,0,128,40,logo);
+    drawString(3,center("Charging", maxLen));
+}
+void DisplayUI::drawRssiMonitor(){
+    if (WiFi.status() != WL_CONNECTED) {
+        display.clear();
+        display.drawString(64, 15, "Connection lost");
+        display.display();
+    }
+    else if (WiFi.status() == WL_CONNECTED) {
+        display.clear();
+        strength = WiFi.RSSI();
+        for (int x = 0; x < 100; x = x + 1) {
+            if (signal_dBM[x] == strength) {
+                percentage = signal_percent[x];
+                break;
+            }
+        }
+        display.drawProgressBar(10, 32, 100, 10, percentage);
+        display.drawString(64, 0, "WiFi Signal Strength");
+        display.drawString(64, 15, String(strength) + "dBm" + " | " + String(percentage) + "%");
+        if (percentage == 0) {
+            display.drawString(64, 45, "No Signal");
+        }
+        else if (percentage == 100) {
+            display.drawString(64, 45, "Maximum Signal");
+        }
+        display.display();
+    }
 }
 void DisplayUI::drawShutdown(){
     drawString(0, center(str(D_SHUTDOWN), maxLen));
@@ -960,11 +991,8 @@ void DisplayUI::drawShutdown(){
 void DisplayUI::drawMenu()
 {
     if (!currentMenu->parentMenu){
-        int batLength = (String(getBatteryPercentage()) + "%").length();
-        drawString(0, right(String(getBatteryPercentage()) + "%", maxLen));
-        display.drawRect(screenWidth - (9 * batLength), 0, (9 * batLength), 14);
-    }    
-    display.drawRect(0, 0, screenWidth, sreenHeight);
+        drawString(0, right(String(battery.getBatteryPercentage5V()) + "%", maxLen));
+    }
     String tmp;
     int tmpLen;
     int row = (currentMenu->selected / 5) * 5;
@@ -1060,16 +1088,12 @@ void DisplayUI::drawIntro()
     // drawString(2, center(str(D_INTRO_2), maxLen));
     drawString(1, leftRight("  WiFi", "Tool  ", maxLen));
     display.drawXbm(0,0,128,40,logo);
-    display.drawRect(0, 0, screenWidth, sreenHeight - (12 * 2));
+    // display.drawRect(0, 0, screenWidth, sreenHeight - (12 * 2));
     
     if (scan.isScanning())
     {
-        drawString(4, center("Memindai ("+String(accesspoints.count())+") ("+ String(stations.count()) +")", maxLen));
+        drawString(4, center("Memindai "+String(accesspoints.count())+" - "+ String(stations.count()) +"", maxLen));
     }
-}
-void DisplayUI::drawFlashLight()
-{
-    display.drawString(64, 20, digitalRead(LIGHT) ? "ON" : "OFF");
 }
 void DisplayUI::drawClock()
 {
