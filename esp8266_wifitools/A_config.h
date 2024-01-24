@@ -57,19 +57,48 @@
 // ========== CONFIGS ========== //
 
 // https://github.com/spacehuhntech/hackheld
-
 #if defined(DX4_WIFI_TOOLS)
 // ===== LED ===== //
   #define LED_DIGITAL
   #define ONE_HIT 0
   #define LED_PIN_B 2
 
-  #define I2C_SDA 4
-  #define I2C_SCL 5
+// ===== BAT ===== //
+  #define USE_BAT true
+  #define MAX_BAT 71
+
 // ===== DISPLAY ===== //
   #define SSD1306_I2C
   #define FLIP_DIPLAY true
-  #define LIGHT 15
+  #define LIGHT 2
+
+  #define I2C_SDA 4
+  #define I2C_SCL 5
+
+// ===== BUTTONS ===== //
+  #define BUTTON_UP 14
+  #define BUTTON_DOWN 12
+  #define BUTTON_A 13
+  #define BUTTON_B 2
+
+#elif defined(DX4_WIFI_TOOLS_MINI)
+// ===== LED ===== //
+  #define LED_DIGITAL
+  #define ONE_HIT 0
+  #define LED_ANODE true
+  #define LED_PIN_B 15
+
+// ===== BAT ===== //
+  #define USE_BAT true
+  #define MAX_BAT 71
+
+// ===== DISPLAY ===== //
+  #define SSD1306_I2C
+  #define FLIP_DIPLAY true
+  #define LIGHT 2
+
+  #define I2C_SDA 4
+  #define I2C_SCL 5
 
 // ===== BUTTONS ===== //
   #define BUTTON_UP 14

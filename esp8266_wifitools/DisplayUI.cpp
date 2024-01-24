@@ -568,7 +568,7 @@ void DisplayUI::update(bool force)
 {
     if (!enabled)
         return;
-    
+
     up->update();
     down->update();
     a->update();
@@ -990,8 +990,8 @@ void DisplayUI::drawShutdown(){
 
 void DisplayUI::drawMenu()
 {
-    if (!currentMenu->parentMenu){
-        drawString(0, right(String(battery.getBatteryPercentage5V()) + "%", maxLen));
+    if (!currentMenu->parentMenu && USE_BAT){
+        drawString(0, right(String(battery.getBatteryPercentage(MAX_BAT)) + "%", maxLen));
     }
     String tmp;
     int tmpLen;
@@ -1086,13 +1086,14 @@ void DisplayUI::drawIntro()
     // drawString(0, center(str(D_INTRO_0), maxLen));
     // drawString(1, center(str(D_INTRO_1), maxLen));
     // drawString(2, center(str(D_INTRO_2), maxLen));
-    drawString(1, leftRight("  WiFi", "Tool  ", maxLen));
+
+    // drawString(1, leftRight("  WiFi", "Tool  ", maxLen));
     display.drawXbm(0,0,128,40,logo);
     // display.drawRect(0, 0, screenWidth, sreenHeight - (12 * 2));
     
     if (scan.isScanning())
     {
-        drawString(4, center("Memindai "+String(accesspoints.count())+" - "+ String(stations.count()) +"", maxLen));
+        drawString(4, center("Scanning "+String(accesspoints.count())+" - "+ String(stations.count()) +"", maxLen));
     }
 }
 void DisplayUI::drawClock()

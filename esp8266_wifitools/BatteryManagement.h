@@ -7,7 +7,7 @@ class BatteryManagement {
         float pureVolt = 0;
 
         int getBatteryPercentage5V();
-        int getBatteryPercentage();
+        int getBatteryPercentage(int max);
         bool isChargingMode();
 
     private:

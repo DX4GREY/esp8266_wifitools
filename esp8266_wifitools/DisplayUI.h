@@ -185,6 +185,7 @@ class DisplayUI {
         void off();
 
     private:
+
         int16_t selectedID    = 0; // i.e. access point ID to draw the apMenu
         uint8_t scrollCounter = 0; // for horizontal scrolling
 

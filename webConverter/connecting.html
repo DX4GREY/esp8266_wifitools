@@ -52,16 +52,8 @@
   <script>
     setTimeout(() => {
       getFile("wifistatus.txt", function (res) {
-        document.getElementById("label").style.display = 'none';
-        document.getElementsByClassName("loader-bar").style.display = 'none';
-
-        var respon = document.getElementById('res');
-        respon.innerText = res;
-        respon.style.display = 'block';
-
-        if (!res.startsWith("Connected")){
-          history.back();
-        }
+        alert(res);
+        history.back();
       });
     }, 10 * 1000);
   </script>
