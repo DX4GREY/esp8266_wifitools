@@ -1,0 +1,9 @@
+﻿designator,quantity,value,pack,mpn,mount_type
+,1,oled,oled,,tht
+(D1 MINI),1,Wemos-D1-mini,wemos-d1-mini-connectors-only,,tht
+"A, B, DOWN, UP",4,SW_PUSH_6mm,SW_PUSH_6mm,,tht
+Battery,1,Power 5V,Power 5V,,smt
+"HOLE, HOLE, HOLE, HOLE",4,MountingHole_2.1mm,MountingHole_2.1mm,,tht
+LED,1,LED_Cree-XQ_HandSoldering,LED_Cree-XQ_HandSoldering,,smt
+"R1, R2",2,Resistor,Resistor,,tht
+"RX, TX",2,Pin_D0.9mm_L10.0mm_W2.4mm_FlatFork,Pin_D0.9mm_L10.0mm_W2.4mm_FlatFork,,tht

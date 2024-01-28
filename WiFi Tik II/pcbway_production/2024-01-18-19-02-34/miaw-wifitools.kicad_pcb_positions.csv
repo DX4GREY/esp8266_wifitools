@@ -1,0 +1,13 @@
+﻿pos_x,pos_y,rotation,side,designator,mpn,pack,value,mount_type,place
+158.75,-93.98,0.0,top,,,oled,oled,tht,True
+158.75,-123.825,90.0,bottom,(D1 MINI),,wemos-d1-mini-connectors-only,Wemos-D1-mini,tht,True
+160.401,-119.325,0.0,top,A,,SW_PUSH_6mm,SW_PUSH_6mm,tht,True
+160.315,-128.215,0.0,top,B,,SW_PUSH_6mm,SW_PUSH_6mm,tht,True
+169.418,-86.884,180.0,bottom,Battery,,Power 5V,Power 5V,smt,True
+150.865,-128.215,0.0,top,DOWN,,SW_PUSH_6mm,SW_PUSH_6mm,tht,True
+158.75,-115.57,0.0,top,LED,,LED_Cree-XQ_HandSoldering,LED_Cree-XQ_HandSoldering,smt,True
+152.4,-105.41,180.0,bottom,R1,,Resistor,Resistor,tht,True
+165.1,-105.41,180.0,bottom,R2,,Resistor,Resistor,tht,True
+145.415,-102.235,-90.0,bottom,RX,,Pin_D0.9mm_L10.0mm_W2.4mm_FlatFork,Pin_D0.9mm_L10.0mm_W2.4mm_FlatFork,tht,True
+145.415,-99.695,-90.0,bottom,TX,,Pin_D0.9mm_L10.0mm_W2.4mm_FlatFork,Pin_D0.9mm_L10.0mm_W2.4mm_FlatFork,tht,True
+150.876,-119.38,0.0,top,UP,,SW_PUSH_6mm,SW_PUSH_6mm,tht,True
