@@ -541,6 +541,11 @@ void DisplayUI::setup()
         addMenuNode(&toolsMenu, D_WSTATUS, [this]() {        // WIFI STATUS
             mode = DISPLAY_MODE::WSTATUS;
         });
+        addMenuNode(&toolsMenu, D_SIGNAL_TEST, [this]() {        // WIFI STATUS    
+            mode = DISPLAY_MODE::RSSI_MONITOR;
+            display.setFont(ArialMT_Plain_10);
+            display.setTextAlignment(TEXT_ALIGN_CENTER);
+        });
         addMenuNode(&toolsMenu, D_SHUTDOWN, [this]() {       // SHUTDOWN
             mode = DISPLAY_MODE::SHUTDOWN;
         });
@@ -756,11 +761,6 @@ void DisplayUI::setupButtons()
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
-                case DISPLAY_MODE::WSTATUS:
-                    mode = DISPLAY_MODE::RSSI_MONITOR;
-                    display.setFont(ArialMT_Plain_10);
-                    display.setTextAlignment(TEXT_ALIGN_CENTER);
-                    break;
             }
         } });
 
@@ -793,11 +793,9 @@ void DisplayUI::setupButtons()
                 case DISPLAY_MODE::PACKETMONITOR:
                 case DISPLAY_MODE::EVIL_TWIN:
                     mode = DISPLAY_MODE::MENU;
-                    display.setFont(DejaVu_Sans_Mono_12);
-                    display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
                 case DISPLAY_MODE::RSSI_MONITOR:
-                    mode = DISPLAY_MODE::WSTATUS;
+                    mode = DISPLAY_MODE::MENU;
                     display.setFont(DejaVu_Sans_Mono_12);
                     display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
@@ -807,8 +805,6 @@ void DisplayUI::setupButtons()
                     break;
                 case DISPLAY_MODE::ABOUT:
                     mode = DISPLAY_MODE::MENU;
-                    display.setFont(DejaVu_Sans_Mono_12);
-                    display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
 
                 case DISPLAY_MODE::CLOCK:
@@ -819,13 +815,9 @@ void DisplayUI::setupButtons()
                 
                 case DISPLAY_MODE::SHUTDOWN:
                     mode = DISPLAY_MODE::MENU;
-                    display.setFont(DejaVu_Sans_Mono_12);
-                    display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
                 case DISPLAY_MODE::WSTATUS:
                     mode = DISPLAY_MODE::MENU;
-                    display.setFont(DejaVu_Sans_Mono_12);
-                    display.setTextAlignment(TEXT_ALIGN_LEFT);
                     break;
             }
         } });
@@ -957,8 +949,16 @@ void DisplayUI::drawCharging()
 }
 void DisplayUI::drawRssiMonitor(){
     if (WiFi.status() != WL_CONNECTED) {
+        int dx4height = 6;
         display.clear();
-        display.drawString(64, 15, "Connection lost");
+        display.drawString(64, dx4height - 5, "Not connected..");
+        dx4height += 16;
+        display.drawRect(0, dx4height - 5, 128, 64 - dx4height);
+        display.drawString(64, dx4height - 5, "> Go To Web server     ");
+        dx4height += 12;
+        display.drawString(64, dx4height - 5, "> Settings                    ");
+        dx4height += 12;
+        display.drawString(64, dx4height - 5, "> WiFi Repeater Table  ");
         display.display();
     }
     else if (WiFi.status() == WL_CONNECTED) {

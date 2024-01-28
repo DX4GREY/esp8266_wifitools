@@ -124,7 +124,7 @@ enum class DISPLAY_MODE { OFF,
                           SHUTDOWN,
                           RSSI_MONITOR,
                           ABOUT,
-                          WSTATUS };
+                          WSTATUS};
 
 class DisplayUI {
     public:
