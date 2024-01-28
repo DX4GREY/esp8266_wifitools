@@ -1,6 +1,6 @@
 # WiFi Tools (esp8266)
 
-<img src='https://deauther.com/img/logo.png' alt='Deauther Logo' width='200' />
+<img src='/logo.png' alt='Deauther Logo' width='200' />
 
 **Scan for WiFi devices, block selected connections, create dozens of networks and confuse WiFi scanners.**
 
