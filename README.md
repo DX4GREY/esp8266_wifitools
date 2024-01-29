@@ -1,8 +1,8 @@
 # WiFi Tools (esp8266)
 
-<img src='/logo.png' alt='Deauther Logo' width='200' />
+Scan for WiFi devices, block selected connections, Start EvilTwin with custom html, create dozens of networks and confuse WiFi scanners.
 
-**Scan for WiFi devices, block selected connections, create dozens of networks and confuse WiFi scanners.**
+<img src='/logo.png' alt='Deauther Logo' width='200' />
 
 ## Password
 

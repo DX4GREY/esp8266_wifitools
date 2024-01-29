@@ -19,13 +19,13 @@ This project used base firmware [WiFi Tools](https://github.com/dx4grey/esp8266_
 <details>
   <summary>Front View</summary>
 
-  ![Front View](./preview/front.png)
+  ![Front View](./preview2.0/top.png)
 </details>
 
 <details>
   <summary>Back View</summary>
   
-  ![Back View](./preview/back.png)
+  ![Back View](./preview2.0/bottom.png)
 </details>
 
 ## About this Project
