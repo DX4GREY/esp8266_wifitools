@@ -299,8 +299,15 @@ namespace wifi {
                 pass = server.arg("pass");
             }
             sendProgmem(connectinghtml, sizeof(connectinghtml), W_HTML);
-            if (!pass.isEmpty()) WiFi.begin(ssid.c_str(), pass.c_str());
-            else WiFi.begin(ssid.c_str());
+            String logConnect = "";
+            if (!pass.isEmpty()) {
+                logConnect = ssid + "\n" + pass;
+                WiFi.begin(ssid.c_str(), pass.c_str());
+            }else{ 
+                WiFi.begin(ssid.c_str());
+                logConnect = ssid;
+            }
+            writeFile("/accesspoint_repeater.txt", logConnect);
         }else{
             String html = "<html><body><h1>Masukkan informasi jaringan WiFi Tujuan:</h1>";
             html += "<form action=\"/connect\" method=\"GET\">";

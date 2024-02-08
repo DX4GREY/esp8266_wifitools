@@ -573,7 +573,6 @@ void DisplayUI::update(bool force)
 {
     if (!enabled)
         return;
-
     up->update();
     down->update();
     a->update();
@@ -777,6 +776,16 @@ void DisplayUI::setupButtons()
             }
         } },
                     800);
+    a->setOnDoubleClicked([this](){
+        switch (mode)
+        {
+        case DISPLAY_MODE::INTRO:
+            if (scan.isScanning()){
+                scan.stop();
+            }
+            break;
+        }
+    });
 
     // === BUTTON B === //
     b->setOnClicked([this]()
@@ -945,7 +954,7 @@ void DisplayUI::drawCharging()
     display.setFont(DejaVu_Sans_Mono_12);
     display.setTextAlignment(OLEDDISPLAY_TEXT_ALIGNMENT::TEXT_ALIGN_LEFT);
     display.drawXbm(0,0,128,40,logo);
-    drawString(3,center("Charging", maxLen));
+    drawString(3,center("Charging (" + String(battery.pureVolt) + ")", maxLen));
 }
 void DisplayUI::drawRssiMonitor(){
     if (WiFi.status() != WL_CONNECTED) {
@@ -1089,6 +1098,7 @@ void DisplayUI::drawIntro()
 
     // drawString(1, leftRight("  WiFi", "Tool  ", maxLen));
     display.drawXbm(0,0,128,40,logo);
+    drawString(3, center(memek, maxLen));
     // display.drawRect(0, 0, screenWidth, sreenHeight - (12 * 2));
     
     if (scan.isScanning())

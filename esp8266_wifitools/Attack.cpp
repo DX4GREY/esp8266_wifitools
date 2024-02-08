@@ -156,7 +156,6 @@ String Attack::getStatusJSON() {
         scan.getEndSSID()) + String(DOUBLEQUOTES) + String(CLOSE_BRACKET) + String(COMMA);                       // [false,"SSID"],
     json += String(packetRate);                                                                                  // 0
     json += CLOSE_BRACKET;                                                                                       // ]
-
     return json;
 }
 

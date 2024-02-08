@@ -20,6 +20,8 @@ extern "C" {
 uint8_t broadcast[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 uint8_t wifi_channel = 1;
 
+String apPath = "/accesspoint_repeater.txt";
+
 // ===== UTF8 FIX ===== //
 String escape(String str) {
     str.replace(String(BACKSLASH), String(BACKSLASH) + String(BACKSLASH));

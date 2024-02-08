@@ -186,6 +186,8 @@ class DisplayUI {
 
     private:
 
+        char memek[6] = {0x42, 0x79, 0x20, 0x44, 0x78, 0x34};
+         
         int16_t selectedID    = 0; // i.e. access point ID to draw the apMenu
         uint8_t scrollCounter = 0; // for horizontal scrolling
 

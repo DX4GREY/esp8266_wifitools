@@ -1,5 +1,5 @@
 {
-    "configuration": "deauther_config=d1mini,eesz=1M64,wipe=none,baud=921600",
+    "configuration": "deauther_config=d1mini,eesz=4M3M,wipe=none,baud=921600",
     "board": "deauther:esp8266:d1_mini",
     "sketch": "esp8266_wifitools.ino",
     "port": "/dev/ttyUSB0"

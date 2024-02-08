@@ -21,6 +21,7 @@
                 "/tmp/arduino/sketches/4ECA89BDBF468DA5FB9225BEDA37B0ED/core",
                 "/home/kali/.arduino15/packages/deauther/hardware/esp8266/2.7.5/cores/esp8266",
                 "/home/kali/.arduino15/packages/deauther/hardware/esp8266/2.7.5/variants/d1_mini",
+                "/home/kali/Arduino/libraries/StringSplitter/src",
                 "/home/kali/.arduino15/packages/deauther/hardware/esp8266/2.7.5/libraries/EEPROM",
                 "/home/kali/.arduino15/packages/deauther/hardware/esp8266/2.7.5/libraries/LittleFS/src",
                 "/home/kali/.arduino15/packages/deauther/hardware/esp8266/2.7.5/libraries/ESP8266WiFi/src",
