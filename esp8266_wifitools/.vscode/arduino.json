@@ -1,6 +1,6 @@
 {
-    "configuration": "deauther_config=d1mini,eesz=4M3M,wipe=none,baud=921600",
-    "board": "deauther:esp8266:d1_mini",
+    "configuration": "deauther_config=none,ResetMethod=nodemcu,CrystalFreq=26,FlashFreq=40,FlashMode=dout,eesz=1M64,led=2,xtal=160,vt=flash,exception=legacy,ssl=all,dbg=Disabled,lvl=None____,ip=lm2f,wipe=none,baud=921600",
+    "board": "deauther:esp8266:generic",
     "sketch": "esp8266_wifitools.ino",
     "port": "/dev/ttyUSB0"
 }

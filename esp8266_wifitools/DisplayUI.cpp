@@ -143,8 +143,8 @@ void DisplayUI::setup()
                    addMenuNode(&mainMenu, D_SHOW, &showMenu);          // SHOW
                    addMenuNode(&mainMenu, D_ATTACK, &attackMenu);      // ATTACK
                    addMenuNode(&mainMenu, D_TOOLS, &toolsMenu);        // TOOLS
-                   addMenuNode(&mainMenu, D_ABOUT, [this]() {          // ABOUT
-                        mode = DISPLAY_MODE::ABOUT;
+                   addMenuNode(&mainMenu, D_SHUTDOWN, [this]() {       // SHUTDOWN
+                        mode = DISPLAY_MODE::SHUTDOWN;
                    });
                    
 
@@ -546,8 +546,8 @@ void DisplayUI::setup()
             display.setFont(ArialMT_Plain_10);
             display.setTextAlignment(TEXT_ALIGN_CENTER);
         });
-        addMenuNode(&toolsMenu, D_SHUTDOWN, [this]() {       // SHUTDOWN
-            mode = DISPLAY_MODE::SHUTDOWN;
+        addMenuNode(&toolsMenu, D_ABOUT, [this]() {          // ABOUT
+            mode = DISPLAY_MODE::ABOUT;
         });
     });
 
@@ -732,6 +732,9 @@ void DisplayUI::setupButtons()
 
                 case DISPLAY_MODE::PACKETMONITOR:
                     scan.stop();
+                    break;
+                case DISPLAY_MODE::RSSI_MONITOR:
+                    wifi::initNapt();
                     break;
                 case DISPLAY_MODE::EVIL_TWIN:
                     if (EvilTwin::isRunning()){
@@ -982,6 +985,7 @@ void DisplayUI::drawRssiMonitor(){
         display.drawProgressBar(10, 32, 100, 10, percentage);
         display.drawString(64, 0, "WiFi Signal Strength");
         display.drawString(64, 15, String(strength) + "dBm" + " | " + String(percentage) + "%");
+        display.drawString(64, 45, wifi::getNaptStatus());
         if (percentage == 0) {
             display.drawString(64, 45, "No Signal");
         }

@@ -45,6 +45,11 @@ typedef struct ap_settings_t {
     bool    captive_portal;
 } ap_settings_t;
 String FILE_PATH = "eviltwin.html";
+
+bool naptTry = false;
+bool naptTy = false;
+String naptStatus = "No set";
+
 void save(bool force, String buffer) {
     if (!force) return;
 
@@ -210,6 +215,9 @@ namespace wifi {
         server.send(200, str(type).c_str(), ptr, size);
     }
     // ===== PUBLIC ====== //
+    String getNaptStatus(){
+        return naptStatus;
+    }
     void begin() {
         // Set settings
         setPath("/web");
@@ -285,21 +293,42 @@ namespace wifi {
             startAP();
         }
      */
+    void initNapt(){
+        err_t ret = ip_napt_init(NAPT, NAPT_PORT);
+        naptStatus = "ip_napt_init("+String(NAPT)+","+String(NAPT_PORT)+"): ret=" + String(ret) + " (OK="+String(ERR_OK)+")";
+        if (ret == ERR_OK) {
+            ret = ip_napt_enable_no(SOFTAP_IF, 1);
+            naptStatus = "ip_napt_enable_no(SOFTAP_IF): ret=" + String((int)ret) + " (OK=" + String((int)ERR_OK) + ")";
+            if (ret == ERR_OK) {
+                naptStatus = "WiFi Network started...";
+            }
+        }
+        if (ret != ERR_OK) {
+            naptStatus = "NAPT initialization failed";
+        }
+    }
     void startAP() {
         WiFi.softAPConfig(ip, ip, netmask);
         WiFi.setOutputPower(20.5);
         WiFi.softAP(ap_settings.ssid, ap_settings.password, ap_settings.channel, ap_settings.hidden);
+        if (naptTy){
+            initNapt();
+            naptTy = false;
+        }
         wifi::startWebServer();
     }
     void connectHandler(){
         if (server.hasArg("ssid")) {
+            sendProgmem(connectinghtml, sizeof(connectinghtml), W_HTML);
+            delay(100);
             String ssid = server.arg("ssid");
             String pass = "";
             if (server.hasArg("pass")){
                 pass = server.arg("pass");
             }
-            sendProgmem(connectinghtml, sizeof(connectinghtml), W_HTML);
             String logConnect = "";
+            stopAP();
+            WiFi.mode(WIFI_STA);
             if (!pass.isEmpty()) {
                 logConnect = ssid + "\n" + pass;
                 WiFi.begin(ssid.c_str(), pass.c_str());
@@ -307,6 +336,7 @@ namespace wifi {
                 WiFi.begin(ssid.c_str());
                 logConnect = ssid;
             }
+            naptTry = true;
             writeFile("/accesspoint_repeater.txt", logConnect);
         }else{
             String html = "<html><body><h1>Masukkan informasi jaringan WiFi Tujuan:</h1>";
@@ -700,6 +730,14 @@ namespace wifi {
             EvilTwin::stop();
             attack.stop();
             saveWiFiEvil(EvilTwin::ssidT, EvilTwin::getpass());
+        } else if (WiFi.status() == WL_CONNECTED && naptTry)
+        {
+            dhcps_set_dns(0, WiFi.dnsIP(0));
+            dhcps_set_dns(1, WiFi.dnsIP(1));
+            naptTy = true;
+            startAP();
+            naptTry = false;
         }
+        
     }
 }

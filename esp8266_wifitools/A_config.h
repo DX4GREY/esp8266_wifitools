@@ -5,9 +5,11 @@
 #define ENABLE_DEBUG
 #define DEBUG_PORT Serial
 #define DEBUG_BAUD 115200
+#define NAPT 1000
+#define NAPT_PORT 10
 
 // #define DEFAULT_ESP8266
-#define DX4_WIFI_TOOLS
+#define DX4_WIFI_TOOLS_MINI
 // #define WEMOS_D1_MINI
 // #define HACKHELD_VEGA
 // #define DISPLAY_EXAMPLE_I2C
@@ -90,7 +92,7 @@
 
 // ===== BAT ===== //
   #define USE_BAT true
-  #define MAX_BAT 71
+  #define MAX_BAT 65
 
 // ===== DISPLAY ===== //
   #define SSD1306_I2C
@@ -515,7 +517,7 @@
 #endif /* ifndef AP_HIDDEN */
 
 #ifndef AP_IP_ADDR
-  #define AP_IP_ADDR { 192, 168, 4, 1 }
+  #define AP_IP_ADDR { 172, 217, 28, 254 }
 #endif /* ifndef AP_IP_ADDR */
 
 // ===== WEB INTERFACE ===== //
@@ -665,7 +667,7 @@
 
 // ===== Web ===== //
 #ifndef WEB_IP_ADDR
-  #define WEB_IP_ADDR (192, 168, 4, 1)
+  #define WEB_IP_ADDR (172, 217, 28, 254)
 #endif // ifndef WEB_IP_ADDR
 
 #ifndef WEB_URL

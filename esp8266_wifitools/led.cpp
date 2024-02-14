@@ -124,7 +124,7 @@ namespace led {
                     setColor(LED_MODE_SCAN);
                     break;
                 case ATTACK:
-                    setColor(LED_MODE_ATTACK);
+                    setColor(LED_MODE_SCAN);
                     break;
                 case IDLE:
                     setColor(LED_MODE_IDLE);
