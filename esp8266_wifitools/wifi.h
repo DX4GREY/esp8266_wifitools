@@ -16,6 +16,8 @@ namespace wifi {
     void printStatus();
     void initNapt();
 
+    void connectNapt(String ssid, String pass);
+
     void startNewAP(String path, String ssid, String password, uint8_t ch, bool hidden, bool captivePortal);
     void startEvilTwin(String apn);
     // void startAP(String path);

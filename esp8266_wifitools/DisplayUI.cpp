@@ -37,7 +37,6 @@ void DisplayUI::configInit()
 
     display.clear();
     display.display();
-    pinMode(LIGHT, OUTPUT);
 }
 
 void DisplayUI::shutDown(){
@@ -347,6 +346,11 @@ void DisplayUI::setup()
             changeMenu(&showMenu);
             ssids.save(false);
         });
+        if (accesspoints.getEncStr(selectedID) == "-")
+            addMenuNode(&apMenu, D_CONNECT, [this]() { // CONNECT
+                wifi::connectNapt(accesspoints.getSSID(selectedID), "");
+                mode = DISPLAY_MODE::WSTATUS;
+            });
         addMenuNode(&apMenu, D_REMOVE, [this]() { // REMOVE
             accesspoints.remove(selectedID);
             apListMenu.list->remove(apListMenu.selected);

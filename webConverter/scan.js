@@ -93,15 +93,6 @@ function drawScan() {
 
 	getE("stTable").innerHTML = html;
 }
-function connect(ids) {
-	var password = "";
-	var usePassword = false;
-	if (!(scanJson.aps[ids][4] == "-")){
-		password = prompt("Password for : " + scanJson.aps[ids][0]);
-		usePassword = true;
-	}
-	window.location.href = "./connect?ssid=" + scanJson.aps[ids][0] + (usePassword ? "&pass=" + password : "");
-}
 function drawNames() {
 	var html;
 	var selected;

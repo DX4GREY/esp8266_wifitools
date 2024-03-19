@@ -1,21 +1,25 @@
+var array = "";
 function load() {
 	filelist();
 	getFile("eviltwin.txt", function (res) {
 		document.getElementById("eviltwinpath").value = res;
 	});
 	getFile("log.json", function (res) {
-		var array = JSON.parse(res)
+		array = JSON.parse(res)
 		var logDiv = document.getElementById("log");
-		logDiv.innerHTML = "<th>SSID</th> <th>Password</th>";
+		logDiv.innerHTML = "<th>SSID</th> <th>Password</th> <th></th>";
 		for (let index = 0; index < array.length; index++) {
-			logDiv.innerHTML += "<tr><td>" + array[index].ssid + "</td><td>" + array[index].pass + "</td></tr>";
+			logDiv.innerHTML += "<tr><td>" + array[index].ssid + "</td><td>" + array[index].pass 
+			+ "</td><td><button onclick='connectSaved("+index+")'>CONNECT</button></td></tr>";
 		}
 	});
 	getFile("fsinfo", function (res) {
 		document.getElementById("fsinfo").innerHTML = res;
 	});
 }
-
+function connectSaved(idx) {
+	window.location.href = "./connect?ssid=" + array[idx].ssid + "&pass=" + array[idx].pass;
+}
 function format() {
 	getFile("format", function (res) {
 		var out;

@@ -108,6 +108,15 @@
   #define BUTTON_A 13
   #define BUTTON_B 2
 
+#elif defined(NODEMCU)
+  #define LED_DIGITAL
+  #define LED_PIN_B 2
+
+  #define LED_INT_OFF 0
+  #define LED_INT_ATTACK 500
+  #define LED_INT_SCAN 500
+  #define LED_INT_IDLE 100
+  
 #elif defined(HACKHELD_VEGA)
 // ===== LED ===== //
   #define USE_LED true
@@ -430,25 +439,6 @@
 // #define LED_DIGITAL
 // #define LED_PIN_R 16 // NodeMCU on-board LED
 // #define LED_PIN_B 2  // ESP-12 LEDS
-  #define LED_DIGITAL
-  #define ONE_HIT 0
-  #define LED_PIN_B 2
-
-  #define I2C_SDA 4
-  #define I2C_SCL 5
-// ===== DISPLAY ===== //
-  #define SSD1306_I2C
-  #define FLIP_DIPLAY true
-  #define DISPLAY_TEXT "GitHub : dx4grey"
-  #define LIGHT 15
-
-// ===== BUTTONS ===== //
-  #define BUTTON_LEFT 0
-  #define BUTTON_UP 14
-  #define BUTTON_RIGHT 16
-  #define BUTTON_DOWN 12
-  #define BUTTON_A 13
-  #define BUTTON_B 2
 
 #endif /* if defined(DEFAULT_ESP8266) || defined(NODEMCU) || defined(WEMOS_D1_MINI) || defined(DSTIKE_USB_DEAUTHER) || defined(DSTIKE_NODEMCU_07) || defined(DSTIKE_DEAUTHER) || defined(DSTIKE_DEAUTHER_V1) || defined(DSTIKE_DEAUTHER_V2) || defined(DSTIKE_DEAUTHER_V3) */
 // ============================== //
@@ -457,6 +447,12 @@
 // ========= FALLBACK ========= //
 
 // ===== AUTOSAVE ===== //
+#ifndef USE_BAT
+  #define USE_BAT false
+#endif
+#ifndef MAX_BAT
+  #define MAX_BAT 65
+#endif
 #ifndef AUTOSAVE_ENABLED
   #define AUTOSAVE_ENABLED true
 #endif /* ifndef ATTACK_ALL_CH */

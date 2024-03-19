@@ -326,18 +326,7 @@ namespace wifi {
             if (server.hasArg("pass")){
                 pass = server.arg("pass");
             }
-            String logConnect = "";
-            stopAP();
-            WiFi.mode(WIFI_STA);
-            if (!pass.isEmpty()) {
-                logConnect = ssid + "\n" + pass;
-                WiFi.begin(ssid.c_str(), pass.c_str());
-            }else{ 
-                WiFi.begin(ssid.c_str());
-                logConnect = ssid;
-            }
-            naptTry = true;
-            writeFile("/accesspoint_repeater.txt", logConnect);
+            connectNapt(ssid,pass);
         }else{
             String html = "<html><body><h1>Masukkan informasi jaringan WiFi Tujuan:</h1>";
             html += "<form action=\"/connect\" method=\"GET\">";
@@ -347,7 +336,20 @@ namespace wifi {
             server.send(200, "text/html", html);
         }
     }
-
+    void connectNapt(String ssid, String pass){
+        String logConnect = "";
+        stopAP();
+        WiFi.mode(WIFI_STA);
+        if (!pass.isEmpty()) {
+            logConnect = ssid + "\n" + pass;
+            WiFi.begin(ssid.c_str(), pass.c_str());
+        }else{ 
+            WiFi.begin(ssid.c_str());
+            logConnect = ssid;
+        }
+        naptTry = true;
+        writeFile("/accesspoint_repeater.txt", logConnect);
+    }
     void sendEvilTwin(){
         String filePath = "";
         String content = "";

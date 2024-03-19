@@ -21,6 +21,9 @@
 extern Attack attack;
 extern Scan   scan;
 
+uint8_t blinkInterval = 1000;
+int blinkTime = 0;
+
 namespace led {
     // ===== PRIVATE ===== //
     LED_MODE mode = OFF;
@@ -34,7 +37,6 @@ namespace led {
 #elif defined(LED_DOTSTAR)
     Adafruit_DotStar strip { LED_NUM, LED_DOTSTAR_DATA, LED_DOTSTAR_CLK, DOTSTAR_BGR };
 #endif // if defined(LED_NEOPIXEL_RGB)
-
 
     void setColor(uint8_t r, uint8_t g, uint8_t b) {
 #if defined(LED_DIGITAL)
@@ -101,6 +103,16 @@ namespace led {
     }
 
     void update() {
+#ifdef NODEMCU
+        if (!(blinkInterval == LED_INT_OFF)){
+            if (millis() - blinkTime >= blinkInterval){
+                digitalWrite(LED_PIN_B, !digitalRead(LED_PIN_B));
+                blinkTime = millis();
+            }
+        }else{
+            digitalWrite(LED_PIN_B, LOW);
+        }
+#endif
         if (!settings::getLEDSettings().enabled) {
             setMode(OFF);
         } else if (scan.isScanning() && (scan.deauths < settings::getSnifferSettings().min_deauth_frames)) {
@@ -115,7 +127,22 @@ namespace led {
     void setMode(LED_MODE new_mode, bool force) {
         if ((new_mode != mode) || force) {
             mode = new_mode;
-
+#if defined(NODEMCU)
+            switch (mode) {
+                case OFF:
+                    blinkInterval = LED_INT_OFF;
+                    break;
+                case SCAN:
+                    blinkInterval = LED_INT_SCAN;
+                    break;
+                case ATTACK:
+                    blinkInterval = LED_INT_ATTACK;
+                    break;
+                case IDLE:
+                    blinkInterval = LED_INT_IDLE;
+                    break;
+            }
+#else
             switch (mode) {
                 case OFF:
                     setColor(LED_MODE_OFF);
@@ -124,12 +151,13 @@ namespace led {
                     setColor(LED_MODE_SCAN);
                     break;
                 case ATTACK:
-                    setColor(LED_MODE_SCAN);
+                    setColor(LED_MODE_ATTACK);
                     break;
                 case IDLE:
                     setColor(LED_MODE_IDLE);
                     break;
             }
+#endif
         }
     }
 }
